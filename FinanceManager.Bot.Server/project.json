@@ -14,7 +14,8 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "StructureMap.Microsoft.DependencyInjection": "1.2.0",
-    "FinanceManager.Bot.Framework": "1.0.0-*"
+    "FinanceManager.Bot.Framework": "1.0.0-*",
+    "FinanceManager.Bot.Helpers": "1.0.0-*"
   },
 
   "frameworks": {

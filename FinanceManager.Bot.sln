@@ -9,6 +9,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.Framewor
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.DataAccessLayer", "FinanceManager.Bot.DataAccessLayer\FinanceManager.Bot.DataAccessLayer.xproj", "{0F82252E-07E3-4295-8517-52E67B5477B7}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.Helpers", "FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.xproj", "{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0F82252E-07E3-4295-8517-52E67B5477B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F82252E-07E3-4295-8517-52E67B5477B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F82252E-07E3-4295-8517-52E67B5477B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
