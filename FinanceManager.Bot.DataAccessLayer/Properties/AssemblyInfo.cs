@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Manager.Bot")]
+[assembly: AssemblyProduct("FinanceManager.Bot.DataAccessLayer")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("50a699bc-e7cc-4f4b-87ee-07ef2fcc5dda")]
+[assembly: Guid("0f82252e-07e3-4295-8517-52e67b5477b7")]

@@ -2,8 +2,8 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "MongoDB.Driver": "2.4.2",
-    "NETStandard.Library": "1.6.1"
+    "FinanceManager.Bot.DataAccessLayer": "1.0.0-*",
+    "NETStandard.Library": "1.6.0"
   },
 
   "frameworks": {

@@ -7,8 +7,8 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>74b2e7f7-4cc8-4f8f-adab-c22de399ca2e</ProjectGuid>
-    <RootNamespace>Manager.Bot.DataAccessLayer</RootNamespace>
+    <ProjectGuid>635aabdc-5cf1-4dee-a0e6-f3271c350088</ProjectGuid>
+    <RootNamespace>FinanceManager.Bot.Server</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
