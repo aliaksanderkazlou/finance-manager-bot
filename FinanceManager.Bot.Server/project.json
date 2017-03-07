@@ -10,12 +10,17 @@
       "version": "1.0.0-rc2-3002702"
     },
     "Telegram.Bot": "10.4.0",
+    "Microsoft.ApplicationInsights.AspNetCore": "1.0.0",
+    "Microsoft.AspNetCore.Mvc": "1.0.0",
+    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0",
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "StructureMap.Microsoft.DependencyInjection": "1.2.0",
-    "FinanceManager.Bot.Framework": "1.0.0-*",
-    "FinanceManager.Bot.Helpers": "1.0.0-*"
+    "Microsoft.Extensions.Logging.Debug": "1.0.0",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0"
   },
 
   "frameworks": {

@@ -1,9 +1,5 @@
-﻿using System;
-using FinanceManager.Bot.Framework.Services;
-using FinanceManager.Bot.Helpers.Extensions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using StructureMap;
+﻿using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace FinanceManager.Bot.Server
 {
@@ -11,7 +7,14 @@ namespace FinanceManager.Bot.Server
     {
         public static void Main(string[] args)
         {
+            var host = new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStartup<Startup>()
+                .UseUrls("http://localhost:5001/")
+                .Build();
 
+            host.Run();
         }
     }
 }
