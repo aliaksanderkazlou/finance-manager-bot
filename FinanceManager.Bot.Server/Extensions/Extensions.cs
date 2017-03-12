@@ -26,6 +26,7 @@ namespace FinanceManager.Bot.Server.Extensions
             botClient.SetWebhookAsync(settings.Domain.TrimEnd('/') + webhookPath)
                 .GetAwaiter()
                 .GetResult();
+
             return app;
         }
     }
