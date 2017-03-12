@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.Bot.Framework.CommandHandlerServices
+﻿using Telegram.Bot.Types;
+
+namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {
     public class InlineCommandHandlerService : ICommandHandlerService
     {
@@ -7,11 +9,9 @@
             
         }
 
-        public string Command { get; set; }
-
-        public void Handle(string body)
+        public void Handle(Message message)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

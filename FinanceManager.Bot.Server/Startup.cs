@@ -27,6 +27,7 @@ namespace FinanceManager.Bot.Server
             services.AddApplicationInsightsTelemetry(Configuration);
             services.AddMvc();
             services.AddTelegramBot(Configuration);
+            services.AddAppDependencies();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

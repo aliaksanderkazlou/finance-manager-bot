@@ -6,7 +6,7 @@ using Telegram.Bot;
 
 namespace FinanceManager.Bot.Server.Extensions
 {
-    public static class Extensions
+    public static class BotExtensions
     {
         public static void AddTelegramBot(this IServiceCollection services, IConfigurationRoot configuration)
         {

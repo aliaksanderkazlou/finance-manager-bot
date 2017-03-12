@@ -1,9 +1,9 @@
-﻿namespace FinanceManager.Bot.Framework
+﻿using Telegram.Bot.Types;
+
+namespace FinanceManager.Bot.Framework
 {
     public interface ICommandHandlerService
-    {
-        string Command { get; set; }
-
-        void Handle(string body);
+    { 
+        void Handle(Message message);
     }
 }

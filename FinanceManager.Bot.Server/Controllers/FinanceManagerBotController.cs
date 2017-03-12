@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceManager.Bot.Framework.Services;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -13,33 +14,27 @@ namespace FinanceManager.Bot.Server.Controllers
     {
         private readonly ITelegramBotClient _botClient;
 
-        public FinanceManagerBotController(ITelegramBotClient botClient)
+        private readonly CommandService _commandService;
+
+        public FinanceManagerBotController(
+            ITelegramBotClient botClient, 
+            CommandService commandService)
         {
             _botClient = botClient;
+            _commandService = commandService;
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> GetMessage([FromBody]Update update)
+        public IActionResult GetMessage([FromBody]Update update)
         {
             var message = update.Message;
 
-            if (message.Type == MessageType.TextMessage)
+            if (message.Type != MessageType.TextMessage)
             {
-                await _botClient.SendTextMessageAsync(message.Chat.Id, message.Text);
+                // TODO: add to unhandle
             }
-            else if (message.Type == MessageType.PhotoMessage)
-            {
-                var file = await _botClient.GetFileAsync(message.Photo.LastOrDefault()?.FileId);
 
-                var filename = file.FileId + "." + file.FilePath.Split('.').Last();
-
-                using (var saveImageStream = System.IO.File.Open(filename, FileMode.Create))
-                {
-                    await file.FileStream.CopyToAsync(saveImageStream);
-                }
-
-                await _botClient.SendTextMessageAsync(message.Chat.Id, "Thx for the Pics");
-            }
+            _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
 
             return Ok();
         }

@@ -3,7 +3,8 @@
 
   "dependencies": {
     "FinanceManager.Bot.DataAccessLayer": "1.0.0-*",
-    "NETStandard.Library": "1.6.0"
+    "NETStandard.Library": "1.6.0",
+    "Telegram.Bot": "10.4.0"
   },
 
   "frameworks": {
