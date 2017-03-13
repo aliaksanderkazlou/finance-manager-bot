@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 namespace FinanceManager.Bot.Framework.Services
 {
     public class CommandService
     {
-        private delegate void CommandHandlerDelegate(Message message);
+        private delegate Task CommandHandlerDelegate(Message message);
 
         private Dictionary<string, CommandHandlerDelegate> _commandHandlerDictionary;
 
@@ -32,11 +33,11 @@ namespace FinanceManager.Bot.Framework.Services
             };
         }
 
-        public void ExecuteCommand(string command, Message message)
+        public async Task ExecuteCommand(string command, Message message)
         {
             try
             {
-                _commandHandlerDictionary[command].Invoke(message);
+                await _commandHandlerDictionary[command].Invoke(message);
             }
             catch (KeyNotFoundException)
             {

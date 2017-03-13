@@ -25,7 +25,7 @@ namespace FinanceManager.Bot.Server.Controllers
         }
 
         [HttpPost("")]
-        public IActionResult GetMessage([FromBody]Update update)
+        public async Task<IActionResult> GetMessage([FromBody]Update update)
         {
             var message = update.Message;
 
@@ -34,7 +34,7 @@ namespace FinanceManager.Bot.Server.Controllers
                 // TODO: add to unhandle
             }
 
-            _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
+            await _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
 
             return Ok();
         }

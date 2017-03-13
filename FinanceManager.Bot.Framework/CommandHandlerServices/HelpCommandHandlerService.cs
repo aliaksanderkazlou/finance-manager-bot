@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
@@ -16,7 +17,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             _botClient = botClient;
         }
 
-        public async void Handle(Message message)
+        public async Task Handle(Message message)
         {
             await _botClient.SendTextMessageAsync(message.Chat.Id, HelpText);
         }
