@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using FinanceManager.Bot.Framework.Enums;
+using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -6,7 +8,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {
     public class HelpCommandHandlerService : ICommandHandlerService
     {
-        private static string HelpText => "Here is a list of commands I can execute\n" +
+        private const string HelpText = "Here is a list of commands I can execute\n" +
                                           "/inline - inline\n" +
                                           "/help - Find out what I can do";
 
@@ -17,9 +19,13 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             _botClient = botClient;
         }
 
-        public async Task Handle(Message message)
+        public async Task<HandlerServiceResult> Handle(Message message)
         {
-            await _botClient.SendTextMessageAsync(message.Chat.Id, HelpText);
+            return new HandlerServiceResult
+            {
+                Message = HelpText,
+                StatusCode = StatusCodeEnum.Ok
+            };
         }
     }
 }

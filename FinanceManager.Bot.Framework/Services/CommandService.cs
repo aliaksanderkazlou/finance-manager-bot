@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FinanceManager.Bot.Framework.Enums;
+using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot.Types;
 
 namespace FinanceManager.Bot.Framework.Services
 {
-    public class CommandService
+    public sealed class CommandService
     {
-        private delegate Task CommandHandlerDelegate(Message message);
+        private delegate Task<HandlerServiceResult> CommandHandlerDelegate(Message message);
 
         private Dictionary<string, CommandHandlerDelegate> _commandHandlerDictionary;
 
@@ -33,16 +35,23 @@ namespace FinanceManager.Bot.Framework.Services
             };
         }
 
-        public async Task ExecuteCommand(string command, Message message)
+        public async Task<HandlerServiceResult> ExecuteCommand(string command, Message message)
         {
             try
             {
-                await _commandHandlerDictionary[command].Invoke(message);
+                return await _commandHandlerDictionary[command].Invoke(message);
             }
             catch (KeyNotFoundException)
             {
                 // TODO: add error handler
+                
             }
+
+            return new HandlerServiceResult
+            {
+                Message = "",
+                StatusCode = StatusCodeEnum.Bad
+            };
         }
     }
 }

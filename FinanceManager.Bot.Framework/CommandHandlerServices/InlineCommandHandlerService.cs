@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot.Types;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
@@ -10,9 +11,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             
         }
 
-        public async Task Handle(Message message)
+        public async Task<HandlerServiceResult> Handle(Message message)
         {
-            
+            return null;
         }
     }
 }
