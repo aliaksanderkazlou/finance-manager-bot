@@ -1,13 +1,9 @@
-﻿namespace FinanceManager.Bot.DataAccessLayer.Services.Users
+﻿using FinanceManager.Bot.DataAccessLayer.Models;
+
+namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 {
-    public interface IUserDocumentService<T> where T: class
+    public interface IUserDocumentService: IDocumentService<User>
     {
-        void Create(T item);
-
-        void Update(T item);
-
-        void Delete(int id);
-
-        T GetById(int id);
+        
     }
 }

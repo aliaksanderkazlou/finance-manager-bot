@@ -1,9 +1,20 @@
-﻿using FinanceManager.Bot.DataAccessLayer.Models;
+﻿using System;
+using FinanceManager.Bot.DataAccessLayer.Models;
+using FinanceManager.Bot.DataAccessLayer.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 {
-    public class UserDocumentService: IUserDocumentService<User>
+    public class UserDocumentService: BaseDocumentService<User>, IUserDocumentService
     {
+        protected override IMongoCollection<BsonDocument> Items => MongoService.Users;
+
+        public UserDocumentService(MongoService mongo) : base(mongo)
+        {
+            
+        }
+
         public void Create(User item)
         {
             throw new System.NotImplementedException();
