@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.Server", "FinanceManager.Bot.Server\FinanceManager.Bot.Server.xproj", "{635AABDC-5CF1-4DEE-A0E6-F3271C350088}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.Server", "FinanceManager.Bot.Server\FinanceManager.Bot.Server.csproj", "{635AABDC-5CF1-4DEE-A0E6-F3271C350088}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.Framework", "FinanceManager.Bot.Framework\FinanceManager.Bot.Framework.xproj", "{A8BB9460-C168-4F3D-AE09-2CF649FCB13C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.Framework", "FinanceManager.Bot.Framework\FinanceManager.Bot.Framework.csproj", "{A8BB9460-C168-4F3D-AE09-2CF649FCB13C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.DataAccessLayer", "FinanceManager.Bot.DataAccessLayer\FinanceManager.Bot.DataAccessLayer.xproj", "{0F82252E-07E3-4295-8517-52E67B5477B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.DataAccessLayer", "FinanceManager.Bot.DataAccessLayer\FinanceManager.Bot.DataAccessLayer.csproj", "{0F82252E-07E3-4295-8517-52E67B5477B7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FinanceManager.Bot.Helpers", "FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.xproj", "{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.Helpers", "FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.csproj", "{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

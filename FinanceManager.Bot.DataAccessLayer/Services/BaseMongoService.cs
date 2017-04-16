@@ -14,7 +14,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Services
 
         public virtual void Insert(T document)
         {
-            Items.InsertOneAsync(new BsonDocument(document));
+            //Items.InsertOneAsync(new BsonDocument(document));
         }
     }
 }
