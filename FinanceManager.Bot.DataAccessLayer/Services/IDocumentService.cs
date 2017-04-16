@@ -1,8 +1,10 @@
-﻿namespace FinanceManager.Bot.DataAccessLayer.Services
+﻿using System.Threading.Tasks;
+
+namespace FinanceManager.Bot.DataAccessLayer.Services
 {
     public interface IDocumentService<T>
     {
-        void Create(T item);
+        Task CreateAsync(T item);
 
         void Update(T item);
 

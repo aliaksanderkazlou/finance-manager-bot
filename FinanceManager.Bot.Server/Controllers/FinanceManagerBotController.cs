@@ -34,7 +34,9 @@ namespace FinanceManager.Bot.Server.Controllers
                 // TODO: add to unhandle
             }
 
-            await _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
+            var response = await _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
+
+            await _botClient.SendTextMessageAsync(message.Chat.Id, response.Message);
 
             return Ok();
         }

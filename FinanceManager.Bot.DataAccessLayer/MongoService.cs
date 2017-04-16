@@ -1,4 +1,5 @@
 ﻿using FinanceManager.Bot.DataAccessLayer.Models;
+using FinanceManager.Bot.Helpers.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -10,13 +11,13 @@ namespace FinanceManager.Bot.DataAccessLayer
 
         private readonly IMongoDatabase _database;
 
-        public MongoService(string connectionString)
+        public MongoService(AppSettings settings)
         {
-            var mongoUrl = MongoUrl.Create(connectionString);
-            _client = new MongoClient(connectionString);
+            var mongoUrl = MongoUrl.Create(settings.DatabaseConnectionString);
+            _client = new MongoClient(settings.DatabaseConnectionString);
             _database = _client.GetDatabase(mongoUrl.DatabaseName);
         }
 
-        public IMongoCollection<BsonDocument> Users => _database.GetCollection<BsonDocument>("users");
+        public IMongoCollection<User> Users => _database.GetCollection<User>("users");
     }
 }

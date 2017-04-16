@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <AssemblyName>FinanceManager.Bot.Server</AssemblyName>
@@ -11,11 +10,13 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\FinanceManager.Bot.Framework\FinanceManager.Bot.Framework.csproj" />
+    <ProjectReference Include="..\FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.csproj">
+      <Project>{fa34a599-6b48-4e6a-8b04-8fd09ff9e844}</Project>
+      <Name>FinanceManager.Bot.Helpers</Name>
+    </ProjectReference>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Telegram.Bot" Version="10.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="1.0.0" />
@@ -30,5 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.0.2" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Folder Include="Models" />
+  </ItemGroup>
 </Project>

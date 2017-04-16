@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <AssemblyName>FinanceManager.Bot.DataAccessLayer</AssemblyName>
@@ -10,9 +9,13 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.4.2" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.csproj">
+      <Project>{fa34a599-6b48-4e6a-8b04-8fd09ff9e844}</Project>
+      <Name>FinanceManager.Bot.Helpers</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

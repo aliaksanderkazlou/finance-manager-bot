@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
-using FinanceManager.Bot.DataAccessLayer.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -8,16 +7,18 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 {
     public class UserDocumentService: BaseDocumentService<User>, IUserDocumentService
     {
-        protected override IMongoCollection<BsonDocument> Items => MongoService.Users;
+        protected override IMongoCollection<User> Items => MongoService.Users;
 
-        public UserDocumentService(MongoService mongo) : base(mongo)
-        {
-            
-        }
+        public UserDocumentService(MongoService mongo) : base(mongo) {}
 
-        public void Create(User item)
+        public async Task CreateAsync(User item)
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrEmpty(item.Id))
+            {
+                item.Id = GenerateNewId();
+            }
+
+            await InsertAsync(item);
         }
 
         public void Update(User item)

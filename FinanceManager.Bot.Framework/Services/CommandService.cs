@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot.Types;
+using FinanceManager.Bot.Framework.CommandHandlerServices;
 
 namespace FinanceManager.Bot.Framework.Services
 {
@@ -13,16 +14,20 @@ namespace FinanceManager.Bot.Framework.Services
 
         private Dictionary<string, CommandHandlerDelegate> _commandHandlerDictionary;
 
-        private readonly ICommandHandlerService _inlineCommandHandlerService;
+        private readonly InlineCommandHandlerService _inlineCommandHandlerService;
 
-        private readonly ICommandHandlerService _helpCommandHandlerService;
+        private readonly HelpCommandHandlerService _helpCommandHandlerService;
+
+        private readonly CategoryCommandHandlerService _categoryCommandHandlerService;
 
         public CommandService(
-            ICommandHandlerService inlineCommandHandlerService,
-            ICommandHandlerService helpCommandHandlerService)
+            InlineCommandHandlerService inlineCommandHandlerService,
+            HelpCommandHandlerService helpCommandHandlerService,
+            CategoryCommandHandlerService categoryCommandHandlerService)
         {
             _inlineCommandHandlerService = inlineCommandHandlerService;
             _helpCommandHandlerService = helpCommandHandlerService;
+            _categoryCommandHandlerService = categoryCommandHandlerService;
             InitializeCommandHandlerDictionary();
         }
 
@@ -31,7 +36,8 @@ namespace FinanceManager.Bot.Framework.Services
             _commandHandlerDictionary = new Dictionary<string, CommandHandlerDelegate>
             {
                 {"/inline", _inlineCommandHandlerService.Handle},
-                {"/help", _helpCommandHandlerService.Handle}
+                {"/help", _helpCommandHandlerService.Handle},
+                {"/category", _categoryCommandHandlerService.Handle}
             };
         }
 
