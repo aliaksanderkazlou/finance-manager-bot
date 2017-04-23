@@ -16,5 +16,8 @@ namespace FinanceManager.Bot.DataAccessLayer
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
+
+        public IMongoCollection<UnhandledMessage> UnhandledMessages => _database.GetCollection<UnhandledMessage>(
+            "unhandled_messages");
     }
 }

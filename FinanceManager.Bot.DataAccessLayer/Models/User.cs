@@ -3,10 +3,9 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
-    public class User
+    public class User : BaseModel
     {
-        [BsonId]
-        public string Id { get; set; }
+        public long ChatId { get; set; }
 
         public List<Category> Categories { get; set; }
     }

@@ -2,7 +2,9 @@
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
-    public class Chat : BaseModel
+    public abstract class BaseModel
     {
+        [BsonId]
+        public string Id { get; set; }
     }
 }

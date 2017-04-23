@@ -1,4 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using FinanceManager.Bot.DataAccessLayer.Models;
+using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
+using FinanceManager.Bot.Framework.Enums;
+using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -8,18 +13,27 @@ namespace FinanceManager.Bot.Framework.Services
     {
         private const string ErrorText = "Sorry, I cannot handle this command.";
 
-        private readonly ITelegramBotClient _botClient;
+        private readonly IUnhandledMessageDocumentService _unhandledMessageDocumentService;
 
-        public UnhandledMessageService(ITelegramBotClient botClient)
+        public UnhandledMessageService(IUnhandledMessageDocumentService unhandledMessageDocumentService)
         {
-            _botClient = botClient;
+            _unhandledMessageDocumentService = unhandledMessageDocumentService;
         }
 
-        public async Task Handle(Message message)
+        public async Task<HandlerServiceResult> Handle(Message message)
         {
-            // TODO: add to db
+            await _unhandledMessageDocumentService.InsertAsync(new UnhandledMessage
+            {
+                ChatId = message.Chat.Id,
+                Created = DateTime.Now,
+                Text = message.Text
+            });
 
-            await _botClient.SendTextMessageAsync(message.Chat.Id, ErrorText);
+            return new HandlerServiceResult()
+            {
+                Message = ErrorText,
+                StatusCode = StatusCodeEnum.Bad
+            };
         }
     }
 }

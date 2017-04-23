@@ -3,11 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
-    public class UnhandledMessage
+    public class UnhandledMessage : BaseModel
     {
-        [BsonId]
-        public string Id { get; set; }
-
         public string Text { get; set; }
 
         public long ChatId { get; set; }

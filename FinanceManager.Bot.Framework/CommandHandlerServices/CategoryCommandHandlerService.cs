@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
@@ -19,12 +21,24 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         public async Task<HandlerServiceResult> Handle(Message message)
         {
-            await _userDocumentService.CreateAsync(new User());
+            var words = message.Text.Split(new[] {" "}, StringSplitOptions.RemoveEmptyEntries);
+
+            if (words.Length == 1)
+            {
+                await _userDocumentService.InsertAsync(new User
+                {
+                    Id = message.Chat.Id.ToString(),
+                    Categories = new List<Category>()
+                });
+            }
 
             return new HandlerServiceResult
             {
-                StatusCode = StatusCodeEnum.Ok
+                StatusCode = StatusCodeEnum.Ok,
+                Message = "You don't have any categories yet. Do you want to add categories?"
             };
         }
+
+        //private HandlerServiceResult 
     }
 }

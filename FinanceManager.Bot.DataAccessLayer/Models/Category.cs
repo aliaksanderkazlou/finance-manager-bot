@@ -1,9 +1,7 @@
 ﻿namespace FinanceManager.Bot.DataAccessLayer.Models
 {
-    public class Category
+    public class Category : BaseModel
     {
-        public string Id { get; set; }
-
         public string Name { get; set; }
 
         public decimal SpentThisMonthInCents { get; set; }

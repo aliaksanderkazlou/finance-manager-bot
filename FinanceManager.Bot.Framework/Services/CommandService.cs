@@ -20,14 +20,18 @@ namespace FinanceManager.Bot.Framework.Services
 
         private readonly CategoryCommandHandlerService _categoryCommandHandlerService;
 
+        private readonly UnhandledMessageService _unhandledMessageService;
+
         public CommandService(
             InlineCommandHandlerService inlineCommandHandlerService,
             HelpCommandHandlerService helpCommandHandlerService,
-            CategoryCommandHandlerService categoryCommandHandlerService)
+            CategoryCommandHandlerService categoryCommandHandlerService,
+            UnhandledMessageService unhandledMessageService)
         {
             _inlineCommandHandlerService = inlineCommandHandlerService;
             _helpCommandHandlerService = helpCommandHandlerService;
             _categoryCommandHandlerService = categoryCommandHandlerService;
+            _unhandledMessageService = unhandledMessageService;
             InitializeCommandHandlerDictionary();
         }
 
@@ -43,21 +47,18 @@ namespace FinanceManager.Bot.Framework.Services
 
         public async Task<HandlerServiceResult> ExecuteCommand(string command, Message message)
         {
+            HandlerServiceResult result;
+
             try
             {
-                return await _commandHandlerDictionary[command].Invoke(message);
+                result = await _commandHandlerDictionary[command].Invoke(message);
             }
             catch (KeyNotFoundException)
             {
-                // TODO: add error handler
-                
+                result = await _unhandledMessageService.Handle(message);
             }
 
-            return new HandlerServiceResult
-            {
-                Message = "",
-                StatusCode = StatusCodeEnum.Bad
-            };
+            return result;
         }
     }
 }

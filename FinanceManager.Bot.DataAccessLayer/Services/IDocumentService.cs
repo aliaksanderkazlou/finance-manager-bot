@@ -4,12 +4,12 @@ namespace FinanceManager.Bot.DataAccessLayer.Services
 {
     public interface IDocumentService<T>
     {
-        Task CreateAsync(T item);
+        Task InsertAsync(T item);
 
-        void Update(T item);
+        Task UpdateAsync(T item);
 
-        void Delete(int id);
+        Task DeleteAsync(string id);
 
-        T GetById(int id);
+        Task<T> GetByIdAsync(string id);
     }
 }
