@@ -12,11 +12,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                                           "/inline - inline\n" +
                                           "/help - Find out what I can do";
 
-        private readonly ITelegramBotClient _botClient;
-
-        public HelpCommandHandlerService(ITelegramBotClient botClient)
+        public HelpCommandHandlerService()
         {
-            _botClient = botClient;
         }
 
         public async Task<HandlerServiceResult> Handle(Message message)

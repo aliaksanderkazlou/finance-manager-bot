@@ -11,5 +11,14 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Users
         public UserDocumentService(MongoService mongo) : base(mongo) {}
 
         protected override IMongoCollection<User> Items => MongoService.Users;
+
+
+        // TODO: get by filter
+        public async Task<User> GetByChatId(long chatId)
+        {
+            var filter = Builders<User>.Filter.Eq(f => f.ChatId, chatId);
+
+            return await SearchByFilter(filter);
+        }
     }
 }

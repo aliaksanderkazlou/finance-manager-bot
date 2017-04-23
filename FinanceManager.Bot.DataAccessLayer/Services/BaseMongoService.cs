@@ -53,9 +53,9 @@ namespace FinanceManager.Bot.DataAccessLayer.Services
             return await Items.FindAsync(filter).Result.FirstAsync();
         }
 
-        //public async Task<List<T>> SearchByFilter(FilterDefinition<T> filter)
-        //{
-        //    return await Items.FindAsync(filter);
-        //}
+        public async Task<T> SearchByFilter(FilterDefinition<T> filter)
+        {
+            return await Items.FindAsync(filter).Result.FirstAsync();
+        }
     }
 }

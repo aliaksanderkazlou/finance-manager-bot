@@ -1,14 +1,24 @@
 ﻿using System;
+using FinanceManager.Bot.Helpers.Enums;
 
 namespace FinanceManager.Bot.Helpers.Extensions
 {
     public static class Extensions
     {
-        public static TOut With<TIn, TOut>(this TIn self, Func<TIn, TOut> f)
-            where TIn : class 
-            where TOut : class
+        public static bool IsCategoryEnum(this QuestionsEnum questionsEnum)
         {
-            return self == null ? null : f(self);
+            switch (questionsEnum)
+            {
+                case QuestionsEnum.CategoryType:
+                case QuestionsEnum.CategoryCurrency:
+                case QuestionsEnum.CategoryOperation:
+                case QuestionsEnum.CategorySupposedToSpentThisMonth:
+                    return true;
+                case QuestionsEnum.None:
+                    return false;
+                default:
+                    return false;
+            }
         }
     }
 }
