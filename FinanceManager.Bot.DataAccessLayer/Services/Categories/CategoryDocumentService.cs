@@ -1,4 +1,6 @@
-﻿using FinanceManager.Bot.DataAccessLayer.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using FinanceManager.Bot.DataAccessLayer.Models;
 using MongoDB.Driver;
 
 namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
@@ -8,5 +10,12 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
         public CategoryDocumentService(MongoService mongo) : base(mongo) {}
 
         protected override IMongoCollection<Category> Items => MongoService.Categories;
+
+        public async Task<List<Category>> GetByUserId(string id)
+        {
+            var filter = Builders<Category>.Filter.Eq(f => f.UserId, id);
+
+            return await SearchByFilter(filter);
+        }
     }
 }

@@ -3,6 +3,7 @@
     public enum StatusCodeEnum
     {
         Ok = 1,
-        Bad = 2
+        Bad = 2,
+        NeedKeyboard = 3
     }
 }

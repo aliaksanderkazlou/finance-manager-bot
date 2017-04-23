@@ -8,5 +8,7 @@ namespace FinanceManager.Bot.Framework.Results
         public StatusCodeEnum StatusCode { get; set; }
 
         public string Message { get; set; }
+
+        public object Helper { get; set; }
     }
 }

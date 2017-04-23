@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FinanceManager.Bot.Helpers.Enums;
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
@@ -8,12 +9,14 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
 
         public string Name { get; set; }
 
-        public decimal SpentThisMonthInCents { get; set; }
+        public long SpentThisMonthInCents { get; set; }
 
-        public decimal SupposedToSpentThisMonthInCents { get; set; }
+        public long SupposedToSpentThisMonthInCents { get; set; }
 
-        public decimal SpentInCents { get; set; }
+        public long SpentInCents { get; set; }
 
         public List<Operation> Operations { get; set; }
+
+        public CategoryTypeEnum Type { get; set; }
     }
 }

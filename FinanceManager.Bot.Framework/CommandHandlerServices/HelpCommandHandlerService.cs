@@ -10,7 +10,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
     {
         private const string HelpText = "Here is a list of commands I can execute\n" +
                                           "/inline - inline\n" +
-                                          "/help - Find out what I can do";
+                                          "/help - Find out what I can do\n" +
+                                          "/categories - Add, edit or delete categories";
 
         public HelpCommandHandlerService()
         {

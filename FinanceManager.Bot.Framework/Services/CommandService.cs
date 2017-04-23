@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
@@ -73,7 +74,9 @@ namespace FinanceManager.Bot.Framework.Services
             }
             catch (KeyNotFoundException)
             {
-                var user = await _userDocumentService.GetByChatId(message.Chat.Id);
+                var userSearchResult = await _userDocumentService.GetByChatId(message.Chat.Id);
+
+                var user = userSearchResult.FirstOrDefault();
 
                 try
                 {

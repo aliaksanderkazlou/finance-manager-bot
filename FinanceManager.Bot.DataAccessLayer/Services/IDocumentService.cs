@@ -11,5 +11,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Services
         Task DeleteAsync(string id);
 
         Task<T> GetByIdAsync(string id);
+
+        string GenerateNewId();
     }
 }

@@ -11,9 +11,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             
         }
 
-        public async Task<HandlerServiceResult> Handle(Message message)
+        public Task<HandlerServiceResult> Handle(Message message)
         {
-            return null;
+            return (Task<HandlerServiceResult>) Task.CompletedTask;
         }
     }
 }

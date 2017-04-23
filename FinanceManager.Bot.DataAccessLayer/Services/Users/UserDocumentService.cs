@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using MongoDB.Bson;
@@ -14,7 +16,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 
 
         // TODO: get by filter
-        public async Task<User> GetByChatId(long chatId)
+        public async Task<List<User>> GetByChatId(long chatId)
         {
             var filter = Builders<User>.Filter.Eq(f => f.ChatId, chatId);
 
