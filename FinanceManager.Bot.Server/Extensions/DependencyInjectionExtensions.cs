@@ -1,4 +1,6 @@
 ﻿using FinanceManager.Bot.DataAccessLayer;
+using FinanceManager.Bot.DataAccessLayer.Services.Categories;
+using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
@@ -22,11 +24,15 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<InlineCommandHandlerService>();
             collection.AddTransient<HelpCommandHandlerService>();
             collection.AddTransient<CategoryCommandHandlerService>();
+            collection.AddTransient<UnhandledMessageService>();
         }
 
         private static void AddDocumentServices(this IServiceCollection collection)
         {
             collection.AddTransient<IUserDocumentService, UserDocumentService>();
+            collection.AddTransient<ICategoryDocumentService, CategoryDocumentService>();
+            collection.AddTransient<IUnhandledMessageDocumentService, UnhandledMessageDocumentService>();
+
             collection.AddTransient<MongoService>();
         }
     }

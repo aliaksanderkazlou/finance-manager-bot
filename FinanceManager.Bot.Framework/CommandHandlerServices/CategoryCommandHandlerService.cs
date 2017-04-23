@@ -37,13 +37,47 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {QuestionsEnum.CategoryOperation, ConfigureCategoryOperation },
                 {QuestionsEnum.CategorySupposedToSpentThisMonth, ConfigureCategorySupposedToSpentThisMonth },
                 {QuestionsEnum.CategoryType, ConfigureCategoryType },
-                {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating }
+                {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating },
+                {QuestionsEnum.CategoryName, ConfigureCategoryName}
+            };
+        }
+
+        private async Task<HandlerServiceResult> ConfigureCategoryName(string answer, User user)
+        {
+            if (string.IsNullOrEmpty(answer))
+            {
+                return new HandlerServiceResult
+                {
+                    Message = "Sorry, you should type something",
+                    StatusCode = StatusCodeEnum.Bad
+                };
+            }
+
+            var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
+
+            category.Name = answer;
+
+            await _categoryDocumentService.UpdateAsync(category);
+
+            user.Context.LastQuestion = QuestionsEnum.CategoryType;
+
+            await _userDocumentService.UpdateAsync(user);
+
+            return new HandlerServiceResult
+            {
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "Income",
+                    "Expense"
+                },
+                Message = "Now select the type of your category."
             };
         }
 
         private async Task<HandlerServiceResult> ConfigureCategoryCreating(string answer, User user)
         {
-            if (string.IsNullOrEmpty(answer) || !answer.Contains("Yes") || !answer.Contains("No"))
+            if (string.IsNullOrEmpty(answer) || !answer.Contains("Yes") && !answer.Contains("No"))
                 return new HandlerServiceResult
                 {
                     Message = "Sorry, you can type only Yes or No, or you can /cancel command.",
@@ -89,7 +123,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         private async Task<HandlerServiceResult> ConfigureCategoryType(string answer, User user)
         {
-            if (string.IsNullOrEmpty(answer) || !answer.Contains("Income") || !answer.Contains("Expense"))
+            if (string.IsNullOrEmpty(answer) || !answer.Contains("Income") && !answer.Contains("Expense"))
                 return new HandlerServiceResult
                 {
                     Message = "Sorry, you can type only Income or Expense, or you can /cancel command",
@@ -188,11 +222,24 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         public async Task<HandlerServiceResult> Handle(Message message)
         {
-            var user = await _userDocumentService.GetByChatId(message.Chat.Id);
+            var userSearchResult = await _userDocumentService.GetByChatId(message.Chat.Id);
 
-            var categories = await _categoryDocumentService.GetByUserId(user.FirstOrDefault().Id);
+            var user = userSearchResult.FirstOrDefault();
 
-            if (categories.Count > 0)
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = _userDocumentService.GenerateNewId(),
+                    ChatId = message.Chat.Id
+                };
+
+                await _userDocumentService.InsertAsync(user);
+            }
+
+            var categories = await _categoryDocumentService.GetByUserId(user.Id);
+
+            if (categories != null && categories.Count > 0)
             {
                 var categoriesString = string.Join("\n", categories.Select(c => c.Name));
 
@@ -209,6 +256,13 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     StatusCode = StatusCodeEnum.NeedKeyboard
                 };
             }
+
+            user.Context = new Context
+            {
+                LastQuestion = QuestionsEnum.AddNewCategoryOrNot
+            };
+
+            await _userDocumentService.UpdateAsync(user);
 
             return new HandlerServiceResult
             {

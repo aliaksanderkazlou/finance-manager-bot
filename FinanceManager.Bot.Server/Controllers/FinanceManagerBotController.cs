@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Services;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
@@ -36,9 +38,16 @@ namespace FinanceManager.Bot.Server.Controllers
 
             var response = await _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
 
-
-
-            await _botClient.SendTextMessageAsync(message.Chat.Id, response.Message);
+            if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
+            {
+                await _botClient.SendTextMessageAsync(message.Chat.Id,
+                    response.Message,
+                    replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
+            }
+            else
+            {
+                await _botClient.SendTextMessageAsync(message.Chat.Id, response.Message);
+            }
 
             return Ok();
         }

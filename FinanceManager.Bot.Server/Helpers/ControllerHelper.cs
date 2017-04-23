@@ -5,25 +5,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace FinanceManager.Bot.Server.Helpers
 {
-    public class ControllerHelper
+    public static class ControllerHelper
     {
-        public ReplyKeyboardMarkup BuildKeyBoardMarkup(List<string> options)
+        public static ReplyKeyboardMarkup BuildKeyBoardMarkup(List<string> options)
         {
-            var keyboard = new ReplyKeyboardMarkup(new[]
-            {
-                new [] // first row
-                {
-                    new KeyboardButton("1.1"),
-                    new KeyboardButton("1.2")
-                },
-                new [] // last row
-                {
-                    new KeyboardButton("2.1"),
-                    new KeyboardButton("2.2")
-                }
-            });
+            var keyboard = options.Select(o => new[] {new KeyboardButton(o)}).ToArray();
 
-            return keyboard;
+            var replyKeyBoard = new ReplyKeyboardMarkup(keyboard);
+
+            return replyKeyBoard;
         }
     }
 }
