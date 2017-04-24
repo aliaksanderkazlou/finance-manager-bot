@@ -20,7 +20,6 @@ namespace FinanceManager.Bot.Server.Extensions
 
         private static void AddCommandHandlerServices(this IServiceCollection collection)
         {
-            collection.AddTransient<InlineCommandHandlerService>();
             collection.AddTransient<HelpCommandHandlerService>();
             collection.AddTransient<CategoryCommandHandlerService>();
             collection.AddTransient<UnhandledMessageService>();

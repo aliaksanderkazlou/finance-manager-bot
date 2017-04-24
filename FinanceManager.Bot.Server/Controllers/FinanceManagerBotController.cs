@@ -33,6 +33,11 @@ namespace FinanceManager.Bot.Server.Controllers
         {
             var message = update.Message;
 
+            if (update.Message == null && update.CallbackQuery == null)
+            {
+                return Ok();
+            }
+
             var messageToProcess = message != null
                 ? new Message()
                 {

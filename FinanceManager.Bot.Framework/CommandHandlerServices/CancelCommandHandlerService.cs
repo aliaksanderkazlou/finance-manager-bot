@@ -28,6 +28,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             user.Context.CategoryId = null;
             user.Context.OperationId = null;
 
+            await _userDocumentService.UpdateAsync(user);
+
             return new HandlerServiceResult
             {
                 Message = "Command cancelled",
