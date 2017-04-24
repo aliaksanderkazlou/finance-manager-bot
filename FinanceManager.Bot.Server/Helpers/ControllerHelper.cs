@@ -7,11 +7,11 @@ namespace FinanceManager.Bot.Server.Helpers
 {
     public static class ControllerHelper
     {
-        public static ReplyKeyboardMarkup BuildKeyBoardMarkup(List<string> options)
+        public static InlineKeyboardMarkup BuildKeyBoardMarkup(List<string> options)
         {
-            var keyboard = options.Select(o => new[] {new KeyboardButton(o)}).ToArray();
+            var keyboard = options.Select(o => new[] {new InlineKeyboardButton(o)}).ToArray();
 
-            var replyKeyBoard = new ReplyKeyboardMarkup(keyboard);
+            var replyKeyBoard = new InlineKeyboardMarkup(keyboard);
 
             return replyKeyBoard;
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
@@ -8,8 +7,8 @@ using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
 using FinanceManager.Bot.Helpers.Enums;
-using Telegram.Bot.Types;
 using User = FinanceManager.Bot.DataAccessLayer.Models.User;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {
@@ -33,12 +32,88 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             _questionsHandlerDictionary = new Dictionary<QuestionsEnum, QuestionsHandlerDelegate>
             {
-                {QuestionsEnum.CategoryCurrency, ConfigureCategoryCurrency },
+               // {QuestionsEnum.CategoryCurrency, ConfigureCategoryCurrency },
                 {QuestionsEnum.CategoryOperation, ConfigureCategoryOperation },
                 {QuestionsEnum.CategorySupposedToSpentThisMonth, ConfigureCategorySupposedToSpentThisMonth },
                 {QuestionsEnum.CategoryType, ConfigureCategoryType },
                 {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating },
-                {QuestionsEnum.CategoryName, ConfigureCategoryName}
+                {QuestionsEnum.CategoryName, ConfigureCategoryName},
+                {QuestionsEnum.DeleteCategory, ConfigureCategoryDelete },
+                {QuestionsEnum.EditCategory, ConfigureCategoryEdit }
+            };
+        }
+
+        private async Task<HandlerServiceResult> ConfigureCategoryEdit(string answer, User user)
+        {
+            answer = answer.Trim();
+
+            var categories = await _categoryDocumentService.GetByUserId(user.Id);
+
+            var categoryToEdit = categories.FirstOrDefault(c => c.Name.Equals(answer));
+
+            if (categoryToEdit != null)
+            {
+                user.Context.LastQuestion = QuestionsEnum.CategoryName;
+
+                user.Context.CategoryId = categoryToEdit.Id;
+
+                await _userDocumentService.UpdateAsync(user);
+
+                return new HandlerServiceResult
+                {
+                    Message = "Great! Please, type name of your category.",
+                    StatusCode = StatusCodeEnum.Ok
+                };
+            }
+
+            user.Context.LastQuestion = QuestionsEnum.None;
+
+            user.Context.CategoryId = null;
+
+            await _userDocumentService.UpdateAsync(user);
+
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, you don't have any category with this name.",
+                StatusCode = StatusCodeEnum.Ok
+            };
+        }
+
+        private async Task<HandlerServiceResult> ConfigureCategoryDelete(string answer, User user)
+        {
+            answer = answer.Trim();
+
+            var categories = await _categoryDocumentService.GetByUserId(user.Id);
+
+            var categoryToDelete = categories.FirstOrDefault(c => c.Name.Equals(answer));
+
+            if (categoryToDelete != null)
+            {
+                user.Context.LastQuestion = QuestionsEnum.None;
+
+                user.Context.CategoryId = null;
+
+                await _userDocumentService.UpdateAsync(user);
+
+                await _categoryDocumentService.DeleteAsync(categoryToDelete.Id);
+
+                return new HandlerServiceResult
+                {
+                    Message = string.Format("Category {0} was deleted successfully.", categoryToDelete.Name),
+                    StatusCode = StatusCodeEnum.Ok
+                };
+            }
+
+            user.Context.LastQuestion = QuestionsEnum.None;
+
+            user.Context.CategoryId = null;
+
+            await _userDocumentService.UpdateAsync(user);
+
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, you don't have any category with this name.",
+                StatusCode = StatusCodeEnum.Ok
             };
         }
 
@@ -120,7 +195,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
                 return new HandlerServiceResult
                 {
-                    Message = "Great! Please, type name of your new category.",
+                    Message = "Great! Please, type name of your category.",
                     StatusCode = StatusCodeEnum.Ok
                 };
             }
@@ -166,14 +241,83 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             };
         }
 
-        private async Task<HandlerServiceResult> ConfigureCategoryCurrency(string answer, User user)
-        {
-            return new HandlerServiceResult();
-        }
+        //private async Task<HandlerServiceResult> ConfigureCategoryCurrency(string answer, User user)
+        //{
+        //    return new HandlerServiceResult();
+        //}
 
         private async Task<HandlerServiceResult> ConfigureCategoryOperation(string answer, User user)
         {
-            return new HandlerServiceResult();
+            if (string.IsNullOrEmpty(answer) || !answer.Contains("Add new category") && !answer.Contains("Edit category") && !answer.Contains("Delete category"))
+            {
+                return new HandlerServiceResult
+                {
+                    Helper = new List<string>
+                    {
+                        "Add new category",
+                        "Edit category",
+                        "Delete category"
+                    },
+                    Message = "Sorry, you should chose one of three options, or you can /cancel command.",
+                    StatusCode = StatusCodeEnum.NeedKeyboard
+                };
+            }
+
+            answer = answer.Trim();
+
+            if (answer.Equals("Add new category"))
+            {
+                var category = new Category
+                {
+                    Id = _categoryDocumentService.GenerateNewId(),
+                    UserId = user.Id,
+                    Operations = new List<Operation>()
+                };
+
+                await _categoryDocumentService.InsertAsync(category);
+
+                user.Context.LastQuestion = QuestionsEnum.CategoryName;
+                user.Context.CategoryId = category.Id;
+
+                await _userDocumentService.UpdateAsync(user);
+
+                return new HandlerServiceResult
+                {
+                    Message = "Great! Please, type name of your new category.",
+                    StatusCode = StatusCodeEnum.Ok
+                };
+            }
+
+            if (answer.Equals("Edit category"))
+            {
+                user.Context.LastQuestion = QuestionsEnum.EditCategory;
+
+                await _userDocumentService.UpdateAsync(user);
+
+                var categories = await _categoryDocumentService.GetByUserId(user.Id);
+
+                return new HandlerServiceResult
+                {
+                    Message = "Please, choose category to edit.",
+                    StatusCode = StatusCodeEnum.NeedKeyboard,
+                    Helper = categories.Select(c => c.Name).ToList()
+                };
+            }
+            else
+            {
+                user.Context.LastQuestion = QuestionsEnum.DeleteCategory;
+
+                await _userDocumentService.UpdateAsync(user);
+
+                var categories = await _categoryDocumentService.GetByUserId(user.Id);
+
+                return new HandlerServiceResult
+                {
+                    Message = "Please, choose category to delete.",
+                    StatusCode = StatusCodeEnum.NeedKeyboard,
+                    Helper = categories.Select(c => c.Name).ToList()
+                };
+            }
         }
 
         private async Task<HandlerServiceResult> ConfigureCategorySupposedToSpentThisMonth(string answer, User user)
@@ -184,7 +328,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new HandlerServiceResult
                 {
-                    Message = "Sorry, you can type only number greater than 0, or you can /cancel command",
+                    Message = "Sorry, you can type only number greater than 0, or you can /cancel command.",
                     StatusCode = StatusCodeEnum.Bad
                 };
             }
@@ -204,7 +348,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             return new HandlerServiceResult
             {
-                Message = "You created category! Now you can create operations in this category.",
+                Message = "Your category configured. Now you can create operations in this category by using /category command.",
                 StatusCode = StatusCodeEnum.Ok
             };
         }
@@ -233,7 +377,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         public async Task<HandlerServiceResult> Handle(Message message)
         {
-            var userSearchResult = await _userDocumentService.GetByChatId(message.Chat.Id);
+            var userSearchResult = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
             var user = userSearchResult.FirstOrDefault();
 
@@ -242,7 +386,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 user = new User
                 {
                     Id = _userDocumentService.GenerateNewId(),
-                    ChatId = message.Chat.Id
+                    ChatId = message.UserInfo.ChatId,
+                    FirstName = message.UserInfo.FirstName,
+                    LastName = message.UserInfo.LastName
                 };
 
                 await _userDocumentService.InsertAsync(user);
@@ -252,6 +398,13 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             if (categories != null && categories.Count > 0)
             {
+                user.Context = new Context
+                {
+                    LastQuestion = QuestionsEnum.CategoryOperation
+                };
+
+                await _userDocumentService.UpdateAsync(user);
+
                 var categoriesString = string.Join("\n", categories.Select(c => c.Name));
 
                 return new HandlerServiceResult

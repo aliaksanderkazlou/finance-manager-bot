@@ -2,7 +2,7 @@
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot;
-using Telegram.Bot.Types;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {

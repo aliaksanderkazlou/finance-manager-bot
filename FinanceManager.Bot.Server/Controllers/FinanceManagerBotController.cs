@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Services;
+using FinanceManager.Bot.Helpers.Models;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Server.Controllers
 {
@@ -31,22 +33,39 @@ namespace FinanceManager.Bot.Server.Controllers
         {
             var message = update.Message;
 
-            if (message.Type != MessageType.TextMessage)
-            {
-                // TODO: add to unhandle
-            }
+            var messageToProcess = message != null
+                ? new Message()
+                {
+                    Text = message.Text,
+                    UserInfo = new UserInfo
+                    {
+                        FirstName = message.From.FirstName,
+                        LastName = message.From.LastName,
+                        ChatId = message.Chat.Id
+                    }
+                }
+                : new Message()
+                {
+                    Text = update.CallbackQuery.Data,
+                    UserInfo = new UserInfo()
+                    {
+                        FirstName = update.CallbackQuery.From.FirstName,
+                        LastName = update.CallbackQuery.From.LastName,
+                        ChatId = update.CallbackQuery.From.Id
+                    }
+                };
 
-            var response = await _commandService.ExecuteCommand(message.Text.Split(' ')[0], message);
+            var response = await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
 
             if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
             {
-                await _botClient.SendTextMessageAsync(message.Chat.Id,
+                await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
                     response.Message,
                     replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
             }
             else
             {
-                await _botClient.SendTextMessageAsync(message.Chat.Id, response.Message);
+                await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId, response.Message);
             }
 
             return Ok();

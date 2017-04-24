@@ -2,7 +2,6 @@
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
-using FinanceManager.Bot.Framework;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
 using FinanceManager.Bot.Framework.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +24,7 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<HelpCommandHandlerService>();
             collection.AddTransient<CategoryCommandHandlerService>();
             collection.AddTransient<UnhandledMessageService>();
+            collection.AddTransient<CancelCommandHandlerService>();
         }
 
         private static void AddDocumentServices(this IServiceCollection collection)

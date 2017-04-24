@@ -4,8 +4,7 @@ using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
-using Telegram.Bot;
-using Telegram.Bot.Types;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework.Services
 {
@@ -24,7 +23,7 @@ namespace FinanceManager.Bot.Framework.Services
         {
             await _unhandledMessageDocumentService.InsertAsync(new UnhandledMessage
             {
-                ChatId = message.Chat.Id,
+                ChatId = message.UserInfo.ChatId,
                 Created = DateTime.Now,
                 Text = message.Text
             });

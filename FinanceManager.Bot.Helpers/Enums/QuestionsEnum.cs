@@ -8,6 +8,8 @@
         CategoryType = 3,
         CategorySupposedToSpentThisMonth = 4,
         AddNewCategoryOrNot = 5,
-        CategoryName = 6
+        CategoryName = 6,
+        EditCategory = 7,
+        DeleteCategory = 8
     }
 }

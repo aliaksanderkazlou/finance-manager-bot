@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
-using Telegram.Bot.Types;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
 using FinanceManager.Bot.Helpers.Enums;
 using FinanceManager.Bot.Helpers.Extensions;
 using User = FinanceManager.Bot.DataAccessLayer.Models.User;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework.Services
 {
@@ -74,7 +74,7 @@ namespace FinanceManager.Bot.Framework.Services
             }
             catch (KeyNotFoundException)
             {
-                var userSearchResult = await _userDocumentService.GetByChatId(message.Chat.Id);
+                var userSearchResult = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
                 var user = userSearchResult.FirstOrDefault();
 
@@ -97,6 +97,10 @@ namespace FinanceManager.Bot.Framework.Services
                     }
                 }
                 catch (KeyNotFoundException)
+                {
+                    result = await _unhandledMessageService.Handle(message);
+                }
+                catch (Exception)
                 {
                     result = await _unhandledMessageService.Handle(message);
                 }

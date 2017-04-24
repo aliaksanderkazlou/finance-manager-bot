@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using FinanceManager.Bot.Framework.Results;
-using Telegram.Bot.Types;
+using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework
 {
