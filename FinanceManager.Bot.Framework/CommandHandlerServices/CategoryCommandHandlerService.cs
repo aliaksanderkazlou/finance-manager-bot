@@ -32,7 +32,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             _questionsHandlerDictionary = new Dictionary<QuestionsEnum, QuestionsHandlerDelegate>
             {
-               // {QuestionsEnum.CategoryCurrency, ConfigureCategoryCurrency },
                 {QuestionsEnum.CategoryOperation, ConfigureCategoryOperation },
                 {QuestionsEnum.CategorySupposedToSpentThisMonth, ConfigureCategorySupposedToSpentThisMonth },
                 {QuestionsEnum.CategoryType, ConfigureCategoryType },
@@ -241,11 +240,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             };
         }
 
-        //private async Task<HandlerServiceResult> ConfigureCategoryCurrency(string answer, User user)
-        //{
-        //    return new HandlerServiceResult();
-        //}
-
         private async Task<HandlerServiceResult> ConfigureCategoryOperation(string answer, User user)
         {
             if (string.IsNullOrEmpty(answer) || !answer.Contains("Add new category") && !answer.Contains("Edit category") && !answer.Contains("Delete category"))
@@ -324,7 +318,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             answer = answer.Trim();
 
-            if (string.IsNullOrEmpty(answer) || !long.TryParse(answer, out long number) || number < 0)
+            if (string.IsNullOrEmpty(answer) || !long.TryParse(answer, out long number) || number <= 0)
             {
                 return new HandlerServiceResult
                 {
