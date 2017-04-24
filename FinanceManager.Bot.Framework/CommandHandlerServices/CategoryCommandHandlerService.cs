@@ -53,6 +53,17 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 };
             }
 
+            var categoriesWithTheSameName = await _categoryDocumentService.GetByName(answer);
+
+            if (categoriesWithTheSameName.Count > 0)
+            {
+                return new HandlerServiceResult
+                {
+                    Message = "Sorry, name should be unique.",
+                    StatusCode = StatusCodeEnum.Bad
+                };
+            }
+
             var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
 
             category.Name = answer;
@@ -276,7 +287,5 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             };
 
         }
-
-        //private HandlerServiceResult 
     }
 }

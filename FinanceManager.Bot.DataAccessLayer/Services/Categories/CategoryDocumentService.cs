@@ -17,5 +17,12 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
 
             return await SearchByFilter(filter);
         }
+
+        public async Task<List<Category>> GetByName(string name)
+        {
+            var filter = Builders<Category>.Filter.Eq(f => f.Name, name);
+
+            return await SearchByFilter(filter);
+        }
     }
 }
