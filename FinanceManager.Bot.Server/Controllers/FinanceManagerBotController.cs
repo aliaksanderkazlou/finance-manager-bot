@@ -60,17 +60,20 @@ namespace FinanceManager.Bot.Server.Controllers
                     }
                 };
 
-            var response = await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
+            var responseList = await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
 
-            if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
+            foreach (var response in responseList)
             {
-                await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
-                    response.Message,
-                    replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
-            }
-            else
-            {
-                await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId, response.Message);
+                if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
+                {
+                    await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
+                        response.Message,
+                        replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>)response.Helper));
+                }
+                else
+                {
+                    await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId, response.Message);
+                }
             }
 
             return Ok();

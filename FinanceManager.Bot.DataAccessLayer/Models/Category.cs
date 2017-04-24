@@ -15,8 +15,6 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
 
         public long SpentInCents { get; set; }
 
-        public List<Operation> Operations { get; set; }
-
         public CategoryTypeEnum Type { get; set; }
     }
 }

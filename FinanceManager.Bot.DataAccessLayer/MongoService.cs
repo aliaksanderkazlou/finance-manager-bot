@@ -21,5 +21,7 @@ namespace FinanceManager.Bot.DataAccessLayer
             "unhandled_messages");
 
         public IMongoCollection<Category> Categories => _database.GetCollection<Category>("categories");
+
+        public IMongoCollection<Operation> Operations => _database.GetCollection<Operation>("operations");
     }
 }

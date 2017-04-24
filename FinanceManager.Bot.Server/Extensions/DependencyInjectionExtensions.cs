@@ -1,5 +1,6 @@
 ﻿using FinanceManager.Bot.DataAccessLayer;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
+using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
@@ -24,6 +25,8 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<CategoryCommandHandlerService>();
             collection.AddTransient<UnhandledMessageService>();
             collection.AddTransient<CancelCommandHandlerService>();
+            collection.AddTransient<OperationCommandHandlerService>();
+            collection.AddTransient<StartCommandHandlerService>();
         }
 
         private static void AddDocumentServices(this IServiceCollection collection)
@@ -31,6 +34,7 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<IUserDocumentService, UserDocumentService>();
             collection.AddTransient<ICategoryDocumentService, CategoryDocumentService>();
             collection.AddTransient<IUnhandledMessageDocumentService, UnhandledMessageDocumentService>();
+            collection.AddTransient<IOperationDocumentService, OperationDocumentService>();
 
             collection.AddTransient<MongoService>();
         }

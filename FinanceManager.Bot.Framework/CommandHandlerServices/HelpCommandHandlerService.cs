@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
 using Telegram.Bot;
@@ -16,12 +17,15 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
         }
 
-        public async Task<HandlerServiceResult> Handle(Message message)
+        public async Task<List<HandlerServiceResult>> Handle(Message message)
         {
-            return new HandlerServiceResult
+            return new List<HandlerServiceResult>
             {
-                Message = HelpText,
-                StatusCode = StatusCodeEnum.Ok
+                new HandlerServiceResult
+                {
+                    Message = HelpText,
+                    StatusCode = StatusCodeEnum.Ok
+                }
             };
         }
     }

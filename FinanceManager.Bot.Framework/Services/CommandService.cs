@@ -12,13 +12,14 @@ namespace FinanceManager.Bot.Framework.Services
 {
     public sealed class CommandService
     {
-        private delegate Task<HandlerServiceResult> CommandHandlerDelegate(Message message);
+        private delegate Task<List<HandlerServiceResult>> CommandHandlerDelegate(Message message);
         private Dictionary<string, CommandHandlerDelegate> _commandHandlerDictionary;
         private readonly HelpCommandHandlerService _helpCommandHandlerService;
         private readonly CategoryCommandHandlerService _categoryCommandHandlerService;
         private readonly CancelCommandHandlerService _cancelCommandHandlerService;
         private readonly UnhandledMessageService _unhandledMessageService;
         private readonly OperationCommandHandlerService _operationCommandHandlerService;
+        private readonly StartCommandHandlerService _startCommandHandlerService;
         private readonly IUserDocumentService _userDocumentService;
 
         public CommandService(
@@ -27,6 +28,7 @@ namespace FinanceManager.Bot.Framework.Services
             UnhandledMessageService unhandledMessageService,
             CancelCommandHandlerService cancelCommandHandlerService,
             OperationCommandHandlerService operationCommandHandlerService,
+            StartCommandHandlerService startCommandHandlerService,
             IUserDocumentService userDocumentService)
         {
             _helpCommandHandlerService = helpCommandHandlerService;
@@ -35,6 +37,7 @@ namespace FinanceManager.Bot.Framework.Services
             _userDocumentService = userDocumentService;
             _cancelCommandHandlerService = cancelCommandHandlerService;
             _operationCommandHandlerService = operationCommandHandlerService;
+            _startCommandHandlerService = startCommandHandlerService;
             InitializeCommandHandlerDictionary();
         }
 
@@ -44,14 +47,14 @@ namespace FinanceManager.Bot.Framework.Services
             {
                 {"/help", _helpCommandHandlerService.Handle},
                 {"/category", _categoryCommandHandlerService.Handle},
-                {"/start", _helpCommandHandlerService.Handle},
+                {"/start", _startCommandHandlerService.Handle},
                 {"/cancel", _cancelCommandHandlerService.Handle}
             };
         }
 
-        public async Task<HandlerServiceResult> ExecuteCommand(string command, Message message)
+        public async Task<List<HandlerServiceResult>> ExecuteCommand(string command, Message message)
         {
-            HandlerServiceResult result;
+            List<HandlerServiceResult> result;
 
             try
             {

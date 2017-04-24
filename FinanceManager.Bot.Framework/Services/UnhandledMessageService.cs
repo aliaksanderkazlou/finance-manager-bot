@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
@@ -19,7 +20,7 @@ namespace FinanceManager.Bot.Framework.Services
             _unhandledMessageDocumentService = unhandledMessageDocumentService;
         }
 
-        public async Task<HandlerServiceResult> Handle(Message message)
+        public async Task<List<HandlerServiceResult>> Handle(Message message)
         {
             await _unhandledMessageDocumentService.InsertAsync(new UnhandledMessage
             {
@@ -28,10 +29,13 @@ namespace FinanceManager.Bot.Framework.Services
                 Text = message.Text
             });
 
-            return new HandlerServiceResult()
+            return new List<HandlerServiceResult>
             {
-                Message = ErrorText,
-                StatusCode = StatusCodeEnum.Bad
+                new HandlerServiceResult()
+                {
+                    Message = ErrorText,
+                    StatusCode = StatusCodeEnum.Bad
+                }
             };
         }
     }

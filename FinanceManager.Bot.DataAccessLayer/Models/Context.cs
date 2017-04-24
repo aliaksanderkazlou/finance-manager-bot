@@ -1,10 +1,13 @@
-﻿using FinanceManager.Bot.Helpers.Enums;
+﻿using System.Collections.Generic;
+using FinanceManager.Bot.Helpers.Enums;
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
     public class Context
     {
         public QuestionsEnum LastQuestion { get; set; }
+
+        public List<QuestionsEnum> Questions { get; set; }
 
         public string OperationId { get; set; }
 

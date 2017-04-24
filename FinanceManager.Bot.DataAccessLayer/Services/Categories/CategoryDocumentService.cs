@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using MongoDB.Driver;
@@ -11,14 +12,14 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
 
         protected override IMongoCollection<Category> Items => MongoService.Categories;
 
-        public async Task<List<Category>> GetByUserId(string id)
+        public async Task<List<Category>> GetByUserIdAsync(string id)
         {
             var filter = Builders<Category>.Filter.Eq(f => f.UserId, id);
 
             return await SearchByFilter(filter);
         }
 
-        public async Task<List<Category>> GetByName(string name)
+        public async Task<List<Category>> GetByNameAsync(string name)
         {
             var filter = Builders<Category>.Filter.Eq(f => f.Name, name);
 

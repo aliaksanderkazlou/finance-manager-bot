@@ -27,7 +27,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             _categoryDocumentService = categoryDocumentService;
         }
 
-        public async Task<HandlerServiceResult> Handle(Message message)
+        public async Task<List<HandlerServiceResult>> Handle(Message message)
         {
             var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
@@ -45,7 +45,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
                     Name = "Default Income Category",
-                    Operations = new List<Operation>(),
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
@@ -56,7 +55,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
                     Name = "Default Expense Category",
-                    Operations = new List<Operation>(),
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
@@ -68,10 +66,13 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 await _categoryDocumentService.InsertAsync(defaultIncomeCategory);
             }
 
-            return new HandlerServiceResult
+            return new List<HandlerServiceResult>
             {
-                Message = HelpText,
-                StatusCode = StatusCodeEnum.Ok
+                new HandlerServiceResult
+                {
+                    Message = HelpText,
+                    StatusCode = StatusCodeEnum.Ok
+                }
             };
         }
     }
