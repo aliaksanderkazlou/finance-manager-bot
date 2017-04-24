@@ -14,13 +14,13 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 
         protected override IMongoCollection<User> Items => MongoService.Users;
 
-
-        // TODO: get by filter
-        public async Task<List<User>> GetByChatId(long chatId)
+        public async Task<User> GetByChatId(long chatId)
         {
             var filter = Builders<User>.Filter.Eq(f => f.ChatId, chatId);
 
-            return await SearchByFilter(filter);
+            var searchResult = await SearchByFilter(filter);
+
+            return searchResult.FirstOrDefault();
         }
     }
 }

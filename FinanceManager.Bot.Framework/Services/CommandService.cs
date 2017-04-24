@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Results;
@@ -19,6 +18,7 @@ namespace FinanceManager.Bot.Framework.Services
         private readonly CategoryCommandHandlerService _categoryCommandHandlerService;
         private readonly CancelCommandHandlerService _cancelCommandHandlerService;
         private readonly UnhandledMessageService _unhandledMessageService;
+        private readonly OperationCommandHandlerService _operationCommandHandlerService;
         private readonly IUserDocumentService _userDocumentService;
 
         public CommandService(
@@ -26,6 +26,7 @@ namespace FinanceManager.Bot.Framework.Services
             CategoryCommandHandlerService categoryCommandHandlerService,
             UnhandledMessageService unhandledMessageService,
             CancelCommandHandlerService cancelCommandHandlerService,
+            OperationCommandHandlerService operationCommandHandlerService,
             IUserDocumentService userDocumentService)
         {
             _helpCommandHandlerService = helpCommandHandlerService;
@@ -33,6 +34,7 @@ namespace FinanceManager.Bot.Framework.Services
             _unhandledMessageService = unhandledMessageService;
             _userDocumentService = userDocumentService;
             _cancelCommandHandlerService = cancelCommandHandlerService;
+            _operationCommandHandlerService = operationCommandHandlerService;
             InitializeCommandHandlerDictionary();
         }
 
@@ -57,9 +59,7 @@ namespace FinanceManager.Bot.Framework.Services
             }
             catch (KeyNotFoundException)
             {
-                var userSearchResult = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
-
-                var user = userSearchResult.FirstOrDefault();
+                var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
                 try
                 {
@@ -68,6 +68,10 @@ namespace FinanceManager.Bot.Framework.Services
                         if (user.Context.LastQuestion.IsCategoryEnum())
                         {
                             result = await _categoryCommandHandlerService.HandleCategoryQuestion(message.Text, user);
+                        }
+                        else if (user.Context.LastQuestion.IsOperationEnum())
+                        {
+                            result = await _operationCommandHandlerService.HandleOperationQuestion(message.Text, user);
                         }
                         else
                         {

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
@@ -11,18 +12,26 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
     public class CancelCommandHandlerService : ICommandHandlerService
     {
         private readonly IUserDocumentService _userDocumentService;
+        private readonly ICategoryDocumentService _categoryDocumentService;
 
         public CancelCommandHandlerService(
-            IUserDocumentService userDocumentService)
+            IUserDocumentService userDocumentService,
+            ICategoryDocumentService categoryDocumentService)
         {
             _userDocumentService = userDocumentService;
+            _categoryDocumentService = categoryDocumentService;
         }
 
         public async Task<HandlerServiceResult> Handle(Message message)
         {
-            var userSearchResult = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
+            var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
-            var user = userSearchResult.FirstOrDefault();
+            if (user.Context.CategoryId != null)
+            {
+                await _categoryDocumentService.DeleteAsync(user.Context.CategoryId);
+            }
+
+            //TODO: delete operation
 
             user.Context.LastQuestion = QuestionsEnum.None;
             user.Context.CategoryId = null;

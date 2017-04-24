@@ -6,6 +6,6 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Users
 {
     public interface IUserDocumentService: IDocumentService<User>
     {
-        Task<List<User>> GetByChatId(long chatId);
+        Task<User> GetByChatId(long chatId);
     }
 }

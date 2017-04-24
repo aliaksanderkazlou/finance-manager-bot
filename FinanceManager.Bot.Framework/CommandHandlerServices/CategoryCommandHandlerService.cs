@@ -32,7 +32,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             _questionsHandlerDictionary = new Dictionary<QuestionsEnum, QuestionsHandlerDelegate>
             {
-                {QuestionsEnum.CategoryOperation, ConfigureCategoryOperation },
+                {QuestionsEnum.CategoryAction, ConfigureCategoryOperation },
                 {QuestionsEnum.CategorySupposedToSpentThisMonth, ConfigureCategorySupposedToSpentThisMonth },
                 {QuestionsEnum.CategoryType, ConfigureCategoryType },
                 {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating },
@@ -118,11 +118,22 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         private async Task<HandlerServiceResult> ConfigureCategoryName(string answer, User user)
         {
+            answer = answer.Trim();
+
             if (string.IsNullOrEmpty(answer))
             {
                 return new HandlerServiceResult
                 {
                     Message = "Sorry, you should type something",
+                    StatusCode = StatusCodeEnum.Bad
+                };
+            }
+
+            if (answer.Length > 30)
+            {
+                return new HandlerServiceResult
+                {
+                    Message = "Sorry, you cannot type more than 30 symbols",
                     StatusCode = StatusCodeEnum.Bad
                 };
             }
@@ -162,6 +173,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         private async Task<HandlerServiceResult> ConfigureCategoryCreating(string answer, User user)
         {
+            answer = answer.Trim();
+
             if (string.IsNullOrEmpty(answer) || !answer.Contains("Yes") && !answer.Contains("No"))
                 return new HandlerServiceResult
                 {
@@ -173,8 +186,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     },
                     StatusCode = StatusCodeEnum.NeedKeyboard
                 };
-
-            answer = answer.Trim();
 
             if (answer.Equals("Yes"))
             {
@@ -208,6 +219,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         private async Task<HandlerServiceResult> ConfigureCategoryType(string answer, User user)
         {
+            answer = answer.Trim();
+
             if (string.IsNullOrEmpty(answer) || !answer.Contains("Income") && !answer.Contains("Expense"))
                 return new HandlerServiceResult
                 {
@@ -220,8 +233,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     StatusCode = StatusCodeEnum.NeedKeyboard
                 };
 
-            answer = answer.Trim();
-
             var categoryType = answer.Equals("Income") ? CategoryTypeEnum.Income : CategoryTypeEnum.Expense;
 
             var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
@@ -230,7 +241,21 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            user.Context.LastQuestion = QuestionsEnum.CategorySupposedToSpentThisMonth;
+            user.Context.LastQuestion = categoryType == CategoryTypeEnum.Expense
+                ? QuestionsEnum.CategorySupposedToSpentThisMonth
+                : QuestionsEnum.None;
+
+            
+            if (categoryType == CategoryTypeEnum.Income)
+            {
+                user.Context.CategoryId = null;
+
+                return new HandlerServiceResult
+                {
+                    Message = "Your category configured. Now you can create operations in this category by using /category command.",
+                    StatusCode = StatusCodeEnum.Ok
+                };
+            }
 
             await _userDocumentService.UpdateAsync(user);
 
@@ -242,6 +267,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         private async Task<HandlerServiceResult> ConfigureCategoryOperation(string answer, User user)
         {
+            answer = answer.Trim();
+
             if (string.IsNullOrEmpty(answer) || !answer.Contains("Add new category") && !answer.Contains("Edit category") && !answer.Contains("Delete category"))
             {
                 return new HandlerServiceResult
@@ -256,8 +283,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     StatusCode = StatusCodeEnum.NeedKeyboard
                 };
             }
-
-            answer = answer.Trim();
 
             if (answer.Equals("Add new category"))
             {
@@ -371,22 +396,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         public async Task<HandlerServiceResult> Handle(Message message)
         {
-            var userSearchResult = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
-
-            var user = userSearchResult.FirstOrDefault();
-
-            if (user == null)
-            {
-                user = new User
-                {
-                    Id = _userDocumentService.GenerateNewId(),
-                    ChatId = message.UserInfo.ChatId,
-                    FirstName = message.UserInfo.FirstName,
-                    LastName = message.UserInfo.LastName
-                };
-
-                await _userDocumentService.InsertAsync(user);
-            }
+            var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
             var categories = await _categoryDocumentService.GetByUserId(user.Id);
 
@@ -394,12 +404,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 user.Context = new Context
                 {
-                    LastQuestion = QuestionsEnum.CategoryOperation
+                    LastQuestion = QuestionsEnum.CategoryAction
                 };
 
                 await _userDocumentService.UpdateAsync(user);
 
-                var categoriesString = string.Join("\n", categories.Select(c => c.Name));
+                var categoriesString = string.Join("\n", categories.Select(c => "-" + c.Name));
 
                 return new HandlerServiceResult
                 {
@@ -409,8 +419,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                         "Edit category",
                         "Delete category"
                     },
-                    Message = string.Format("You have {0} categories. {1} You can add new, edit or delete category.",
-                        categories.Count, categoriesString),
+                    Message = string.Format("Here's your categories list:\n{0}\nYou can add new, edit or delete category.", categoriesString),
                     StatusCode = StatusCodeEnum.NeedKeyboard
                 };
             }
@@ -432,7 +441,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 },
                 Message = "You don't have any categories yet. Do you want to add categories?"
             };
-
         }
     }
 }

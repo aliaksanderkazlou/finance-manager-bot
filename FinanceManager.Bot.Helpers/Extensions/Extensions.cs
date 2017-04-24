@@ -11,15 +11,28 @@ namespace FinanceManager.Bot.Helpers.Extensions
             {
                 case QuestionsEnum.CategoryType:
                 case QuestionsEnum.CategoryCurrency:
-                case QuestionsEnum.CategoryOperation:
+                case QuestionsEnum.CategoryAction:
                 case QuestionsEnum.CategorySupposedToSpentThisMonth:
                 case QuestionsEnum.AddNewCategoryOrNot:
                 case QuestionsEnum.CategoryName:
                 case QuestionsEnum.EditCategory:
                 case QuestionsEnum.DeleteCategory:
                     return true;
-                case QuestionsEnum.None:
+                default:
                     return false;
+            }
+        }
+
+        public static bool IsOperationEnum(this QuestionsEnum questionsEnum)
+        {
+            switch (questionsEnum)
+            {
+                case QuestionsEnum.OperationAction:
+                case QuestionsEnum.OperationCategory:
+                case QuestionsEnum.OperationDate:
+                case QuestionsEnum.OperationSum:
+                case QuestionsEnum.OperationType:
+                    return true;
                 default:
                     return false;
             }
