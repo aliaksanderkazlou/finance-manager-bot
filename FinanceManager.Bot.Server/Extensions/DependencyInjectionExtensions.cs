@@ -4,6 +4,7 @@ using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
+using FinanceManager.Bot.Framework.Helpers;
 using FinanceManager.Bot.Framework.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,9 @@ namespace FinanceManager.Bot.Server.Extensions
         public static IServiceCollection AddAppDependencies(this IServiceCollection collection)
         {
             collection.AddTransient<CommandService>();
+            collection.AddTransient<QuestionService>();
+            collection.AddTransient<ResultService>();
+            collection.AddTransient<DocumentServiceHelper>();
             collection.AddCommandHandlerServices();
             collection.AddDocumentServices();
             return collection;

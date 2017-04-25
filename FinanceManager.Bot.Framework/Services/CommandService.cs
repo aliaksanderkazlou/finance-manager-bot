@@ -48,7 +48,8 @@ namespace FinanceManager.Bot.Framework.Services
                 {"/help", _helpCommandHandlerService.Handle},
                 {"/category", _categoryCommandHandlerService.Handle},
                 {"/start", _startCommandHandlerService.Handle},
-                {"/cancel", _cancelCommandHandlerService.Handle}
+                {"/cancel", _cancelCommandHandlerService.Handle},
+                {"/operation", _operationCommandHandlerService.Handle }
             };
         }
 

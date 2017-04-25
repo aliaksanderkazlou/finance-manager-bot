@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using FinanceManager.Bot.Framework.Enums;
+﻿using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
-using FinanceManager.Bot.Helpers.Enums;
 
-namespace FinanceManager.Bot.Framework.Helpers
+namespace FinanceManager.Bot.Framework.Services
 {
-    public class ResultHelper
+    public class ResultService
     {
         public HandlerServiceResult BuildOperationInvalidDateErrorResult()
         {
@@ -16,11 +14,29 @@ namespace FinanceManager.Bot.Framework.Helpers
             };
         }
 
-        public HandlerServiceResult BuildFinishedOperationConfiguringResult()
+        public HandlerServiceResult BuildOperationCategoryNotFoundErrorResult()
         {
             return new HandlerServiceResult
             {
-                Message = "You successfully created operation.",
+                Message = "Category with this name not found.",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+
+        public HandlerServiceResult BuildEmptyAnswerErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "You should type something.",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+
+        public HandlerServiceResult BuildFinishedConfiguringResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Well done!",
                 StatusCode = StatusCodeEnum.Ok
             };
         }
@@ -30,6 +46,24 @@ namespace FinanceManager.Bot.Framework.Helpers
             return new HandlerServiceResult
             {
                 Message = "Invalid sum. Please, try again.",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+
+        public HandlerServiceResult BuildOperationInvalidTypeErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "You should type + or -",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+
+        public HandlerServiceResult BuildOperationTypeCleanCategoryList()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, there are no categories with this type.",
                 StatusCode = StatusCodeEnum.Bad
             };
         }

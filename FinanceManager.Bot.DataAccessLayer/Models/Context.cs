@@ -12,5 +12,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
         public string OperationId { get; set; }
 
         public string CategoryId { get; set; }
+
+        public CategoryTypeEnum CategoryType { get; set; }
     }
 }

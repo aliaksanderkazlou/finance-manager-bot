@@ -27,7 +27,6 @@ namespace FinanceManager.Bot.Helpers.Extensions
         {
             switch (questionsEnum)
             {
-                case QuestionsEnum.OperationAction:
                 case QuestionsEnum.OperationCategory:
                 case QuestionsEnum.OperationDate:
                 case QuestionsEnum.OperationSum:

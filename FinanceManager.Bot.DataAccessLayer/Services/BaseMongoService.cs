@@ -50,7 +50,9 @@ namespace FinanceManager.Bot.DataAccessLayer.Services
         {
             var filter = Builders<T>.Filter.Eq(f => f.Id, id);
 
-            return await Items.FindAsync(filter).Result.FirstAsync();
+            var searchResult = await Items.FindAsync(filter);
+
+            return searchResult.FirstOrDefault();
         }
 
         public async Task<List<T>> SearchByFilter(FilterDefinition<T> filter)

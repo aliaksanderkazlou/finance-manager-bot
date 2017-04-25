@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
+using FinanceManager.Bot.Helpers.Enums;
 
 namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
 {
@@ -9,5 +10,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
         Task<List<Category>> GetByUserIdAsync(string id);
 
         Task<List<Category>> GetByNameAsync(string name);
+
+        Task<List<Category>> GetByTypeAsync(CategoryTypeEnum type);
     }
 }

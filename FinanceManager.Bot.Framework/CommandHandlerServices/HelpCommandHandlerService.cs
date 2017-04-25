@@ -17,16 +17,16 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
         }
 
-        public async Task<List<HandlerServiceResult>> Handle(Message message)
+        public Task<List<HandlerServiceResult>> Handle(Message message)
         {
-            return new List<HandlerServiceResult>
+            return Task.FromResult(new List<HandlerServiceResult>
             {
                 new HandlerServiceResult
                 {
                     Message = HelpText,
                     StatusCode = StatusCodeEnum.Ok
                 }
-            };
+            });
         }
     }
 }

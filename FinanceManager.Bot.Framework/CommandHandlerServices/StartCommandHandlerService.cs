@@ -38,12 +38,17 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Id = _userDocumentService.GenerateNewId(),
                     ChatId = message.UserInfo.ChatId,
                     FirstName = message.UserInfo.FirstName,
-                    LastName = message.UserInfo.LastName
+                    LastName = message.UserInfo.LastName,
+                    Context = new Context
+                    {
+                        LastQuestion = QuestionsEnum.None
+                    }
                 };
 
                 var defaultIncomeCategory = new Category
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
+                    UserId = user.Id,
                     Name = "Default Income Category",
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,
@@ -54,6 +59,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 var defaultExpenseCategory = new Category
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
+                    UserId = user.Id,
                     Name = "Default Expense Category",
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,

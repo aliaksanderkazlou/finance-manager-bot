@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,21 +61,22 @@ namespace FinanceManager.Bot.Server.Controllers
                     }
                 };
 
-            var responseList = await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
+            var responseList =
+                await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
 
-            foreach (var response in responseList)
-            {
-                if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
+                foreach (var response in responseList)
                 {
-                    await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
-                        response.Message,
-                        replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>)response.Helper));
+                    if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
+                    {
+                        await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
+                            response.Message,
+                            replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
+                    }
+                    else
+                    {
+                        await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId, response.Message);
+                    }
                 }
-                else
-                {
-                    await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId, response.Message);
-                }
-            }
 
             return Ok();
         }
