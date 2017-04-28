@@ -11,9 +11,11 @@
         CategoryName,
         EditCategory,
         DeleteCategory,
+        AddCategory,
         OperationType,
         OperationCategory,
         OperationSum,
-        OperationDate
+        OperationDate,
+        ChooseCategory
     }
 }

@@ -6,6 +6,7 @@ using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
+using FinanceManager.Bot.Framework.Structures;
 using FinanceManager.Bot.Helpers.Enums;
 using User = FinanceManager.Bot.DataAccessLayer.Models.User;
 using Message = FinanceManager.Bot.Helpers.Models.Message;
@@ -18,6 +19,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         private readonly ICategoryDocumentService _categoryDocumentService;
         private delegate Task<List<HandlerServiceResult>> QuestionsHandlerDelegate(string answer, User user);
         private Dictionary<QuestionsEnum, QuestionsHandlerDelegate> _questionsHandlerDictionary;
+        private QuestionTree _tree;
 
         public CategoryCommandHandlerService(
             IUserDocumentService userDocumentService,
@@ -26,6 +28,120 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             _categoryDocumentService = categoryDocumentService;
             _userDocumentService = userDocumentService;
             InitializeQuestionsHandlerDictionary();
+            InitializeQuestionTree();
+        }
+
+        private void InitializeQuestionTree()
+        {
+            _tree = new QuestionTree
+            {
+                Parent = null,
+                Question = QuestionsEnum.CategoryAction
+            };
+
+            _tree.Children = new List<QuestionTree>();
+
+            // delete node
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.DeleteCategory
+            });
+
+            _tree = _tree.Children[0];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.ChooseCategory
+            });
+
+            while (_tree.Parent != null)
+            {
+                _tree = _tree.Parent;
+            }
+
+            // edit node
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.EditCategory
+            });
+
+            _tree = _tree.Children[1];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.ChooseCategory
+            });
+
+            while (_tree.Parent != null)
+            {
+                _tree = _tree.Parent;
+            }
+
+            // add node
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.AddCategory
+            });
+
+            _tree = _tree.Children[2];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.CategoryName
+            });
+
+            _tree = _tree.Children[0];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.CategoryType
+            });
+
+            _tree = _tree.Children[0];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.CategorySupposedToSpentThisMonth
+            });
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.None
+            });
+
+            _tree = _tree.Children[0];
+
+            _tree.Children = new List<QuestionTree>();
+
+            _tree.Children.Add(new QuestionTree
+            {
+                Parent = _tree,
+                Question = QuestionsEnum.None
+            });
+
+            while (_tree.Parent != null)
+            {
+                _tree = _tree.Parent;
+            }
         }
 
         private void InitializeQuestionsHandlerDictionary()

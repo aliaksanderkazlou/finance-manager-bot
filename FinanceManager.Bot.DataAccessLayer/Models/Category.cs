@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FinanceManager.Bot.Helpers.Enums;
+﻿using FinanceManager.Bot.Helpers.Enums;
 
 namespace FinanceManager.Bot.DataAccessLayer.Models
 {
