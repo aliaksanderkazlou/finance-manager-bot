@@ -6,7 +6,6 @@ using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
-using FinanceManager.Bot.Helpers.Enums;
 using Message = FinanceManager.Bot.Helpers.Models.Message;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
@@ -33,14 +32,24 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             if (user.Context.CategoryId != null)
             {
-                await _categoryDocumentService.DeleteAsync(user.Context.CategoryId);
+                var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
+
+                if (!category.Configured)
+                {
+                    await _categoryDocumentService.DeleteAsync(user.Context.CategoryId);
+                }
             }
             if (user.Context.OperationId != null)
             {
-                await _operationDocumentService.DeleteAsync(user.Context.OperationId);
+                var operation = await _operationDocumentService.GetByIdAsync(user.Context.OperationId);
+
+                if (!operation.Configured)
+                {
+                    await _operationDocumentService.DeleteAsync(user.Context.OperationId);
+                }
             }
 
-            //user.Context.LastQuestion = QuestionsEnum.None;
+            user.Context.CurrentNode = null;
             user.Context.CategoryId = null;
             user.Context.OperationId = null;
 
@@ -50,7 +59,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 new HandlerServiceResult
                 {
-                    Message = "Command cancelled",
+                    Message = "Command cancelled.",
                     StatusCode = StatusCodeEnum.Ok
                 }
             };

@@ -59,42 +59,35 @@ namespace FinanceManager.Bot.Framework.Services
 
             try
             {
-                result = await _commandHandlerDictionary[command].Invoke(message);
-            }
-            catch (KeyNotFoundException)
-            {
                 var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
-                try
+                if (!command.Equals("/cancel") && user?.Context?.CurrentNode != null && user.Context.CurrentNode.Question != QuestionsEnum.None)
                 {
-                    if (user.Context.CurrentNode.Question != QuestionsEnum.None)
+                    if (user.Context.CurrentNode.Question.IsCategoryEnum())
                     {
-                        if (user.Context.CurrentNode.Question.IsCategoryEnum())
-                        {
-                            result = await _categoryCommandHandlerService.HandleCategoryQuestion(message.Text, user);
-                        }
-                        else if (user.Context.CurrentNode.Question.IsOperationEnum())
-                        {
-                            result = await _operationCommandHandlerService.HandleOperationQuestion(message.Text, user);
-                        }
-                        else
-                        {
-                            result = await _unhandledMessageService.Handle(message);
-                        }
+                        result = await _categoryCommandHandlerService.HandleCategoryQuestion(message.Text, user);
+                    }
+                    else if (user.Context.CurrentNode.Question.IsOperationEnum())
+                    {
+                        result = await _operationCommandHandlerService.HandleOperationQuestion(message.Text, user);
                     }
                     else
                     {
                         result = await _unhandledMessageService.Handle(message);
                     }
                 }
-                catch (KeyNotFoundException)
+                else
                 {
-                    result = await _unhandledMessageService.Handle(message);
+                    result = await _commandHandlerDictionary[command].Invoke(message);
                 }
-                catch (Exception)
-                {
-                    result = await _unhandledMessageService.Handle(message);
-                }
+            }
+            catch (KeyNotFoundException exception)
+            {
+                result = await _unhandledMessageService.Handle(message, exception);
+            }
+            catch (Exception exception)
+            {
+                result = await _unhandledMessageService.Handle(message, exception);
             }
 
             return result;

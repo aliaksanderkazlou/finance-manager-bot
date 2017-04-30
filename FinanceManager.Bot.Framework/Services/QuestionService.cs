@@ -89,7 +89,7 @@ namespace FinanceManager.Bot.Framework.Services
             {
                 Message = "Please, chose category to delete.",
                 StatusCode = StatusCodeEnum.NeedKeyboard,
-                Helper = categories.Select(c => c.Name).ToList()
+                Helper = categories.Where(c => c.Configured).Select(c => c.Name).ToList()
             };
         }
 
@@ -101,7 +101,7 @@ namespace FinanceManager.Bot.Framework.Services
             {
                 Message = "Please, chose category to edit.",
                 StatusCode = StatusCodeEnum.NeedKeyboard,
-                Helper = categories.Select(c => c.Name).ToList()
+                Helper = categories.Where(c => c.Configured).Select(c => c.Name).ToList()
             };
         }
 
@@ -131,6 +131,8 @@ namespace FinanceManager.Bot.Framework.Services
         private async Task<HandlerServiceResult> BuildCategoryActionQuestion()
         {
             var categories = await _documentServiceHelper.GetUserCategories(_user.Id);
+
+            categories = categories.Where(c => c.Configured).ToList();
 
             var categoriesString = string.Join("\n", categories.Select(c => c.Name));
 
@@ -189,16 +191,6 @@ namespace FinanceManager.Bot.Framework.Services
                 StatusCode = StatusCodeEnum.NeedKeyboard,
                 Helper = categories.Select(c => c.Name).ToList()
             };
-        }
-
-        private QuestionsEnum GetNextOperationQuestion(List<QuestionsEnum> questions)
-        {
-            return questions.Count > 0 ? questions.First() : QuestionsEnum.None;
-        }
-
-        private void RemoveOperationQuestionFromList(List<QuestionsEnum> questions, QuestionsEnum question)
-        {
-            questions.Remove(question);
         }
 
         public List<QuestionsEnum> GetOperationQuestions()

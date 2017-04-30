@@ -10,5 +10,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
         public long ChatId { get; set; }
 
         public DateTime Created { get; set; }
+
+        public Exception Exception { get; set; }
     }
 }

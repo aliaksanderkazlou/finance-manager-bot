@@ -15,9 +15,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
     {
         private readonly IUserDocumentService _userDocumentService;
         private readonly ICategoryDocumentService _categoryDocumentService;
-        private const string HelpText = "Here is a list of commands I can execute\n" +
+        private const string HelpText = "/category - Add, edit or delete categories\n" +
+                                        "/income - Add an income operation\n" +
+                                        "/expense - Add an expense operation\n" +
+                                        "/stats - Get statistics\n" +
                                         "/help - Find out what I can do\n" +
-                                        "/category - Add, edit or delete categories";
+                                        "/cancel - Cancel the current command";
 
         public StartCommandHandlerService(
             IUserDocumentService userDocumentService,
@@ -38,11 +41,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Id = _userDocumentService.GenerateNewId(),
                     ChatId = message.UserInfo.ChatId,
                     FirstName = message.UserInfo.FirstName,
-                    LastName = message.UserInfo.LastName,
-                    //Context = new Context
-                    //{
-                    //    LastQuestion = QuestionsEnum.None
-                    //}
+                    LastName = message.UserInfo.LastName
                 };
 
                 var defaultIncomeCategory = new Category
@@ -53,7 +52,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
-                    Type = CategoryTypeEnum.Income
+                    Type = CategoryTypeEnum.Income,
+                    Configured = true
                 };
 
                 var defaultExpenseCategory = new Category
@@ -64,7 +64,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     SpentInCents = 0,
                     SpentThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
-                    Type = CategoryTypeEnum.Expense
+                    Type = CategoryTypeEnum.Expense,
+                    Configured = true
                 };
 
                 await _userDocumentService.InsertAsync(user);

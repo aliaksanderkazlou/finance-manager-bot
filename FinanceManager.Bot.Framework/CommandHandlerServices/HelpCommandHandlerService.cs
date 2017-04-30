@@ -9,9 +9,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {
     public class HelpCommandHandlerService : ICommandHandlerService
     {
-        private const string HelpText = "Here is a list of commands I can execute\n" +
-                                          "/help - Find out what I can do\n" +
-                                          "/category - Add, edit or delete categories";
+        private const string HelpText = "/category - Add, edit or delete categories\n" +
+                                        "/income - Add an income operation\n" +
+                                        "/expense - Add an expense operation\n" +
+                                        "/stats - Get statistics\n" +
+                                        "/help - Find out what I can do\n" +
+                                        "/cancel - Cancel the current command";
 
         public HelpCommandHandlerService()
         {

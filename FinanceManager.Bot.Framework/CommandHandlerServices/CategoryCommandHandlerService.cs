@@ -245,8 +245,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
                 await _categoryDocumentService.InsertAsync(category);
 
-                user.Context.CurrentNode = user.Context.CurrentNode.Children[0];
-                user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
+                user.Context.CurrentNode = user.Context.CurrentNode.Children[0].Children[2];
                 user.Context.CategoryId = category.Id;
 
                 await _userDocumentService.UpdateAsync(user);
@@ -285,6 +284,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             if (categoryType == CategoryTypeEnum.Income)
             {
+                category.Configured = true;
                 user.Context.CategoryId = null;
                 user.Context.CurrentNode = null;
 
@@ -304,6 +304,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 };
             }
 
+            await _categoryDocumentService.UpdateAsync(category);
             await _userDocumentService.UpdateAsync(user);
 
             return result;
@@ -370,6 +371,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             category.SupposedToSpentThisMonthInCents = number;
             category.SpentThisMonthInCents = 0;
             category.SpentInCents = 0;
+            category.Configured = true;
 
             await _categoryDocumentService.UpdateAsync(category);
 
@@ -415,6 +417,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
 
+            categories = categories.Where(c => c.Configured).ToList();
+
             if (categories.Count > 0)
             {
                 user.Context = new Context
@@ -433,7 +437,10 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Question = QuestionsEnum.AddNewCategoryOrNot
                 };
 
-                user.Context.CurrentNode = parentTree;
+                user.Context = new Context()
+                {
+                    CurrentNode = parentTree
+                };
             }
 
             await _userDocumentService.UpdateAsync(user);

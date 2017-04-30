@@ -20,13 +20,14 @@ namespace FinanceManager.Bot.Framework.Services
             _unhandledMessageDocumentService = unhandledMessageDocumentService;
         }
 
-        public async Task<List<HandlerServiceResult>> Handle(Message message)
+        public async Task<List<HandlerServiceResult>> Handle(Message message, Exception exception = null)
         {
             await _unhandledMessageDocumentService.InsertAsync(new UnhandledMessage
             {
                 ChatId = message.UserInfo.ChatId,
                 Created = DateTime.Now,
-                Text = message.Text
+                Text = message.Text,
+                Exception = exception
             });
 
             return new List<HandlerServiceResult>

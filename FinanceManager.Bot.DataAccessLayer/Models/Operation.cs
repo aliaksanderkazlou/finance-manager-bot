@@ -11,5 +11,7 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
         public string Description { get; set; }
 
         public string CategoryId { get; set; }
+
+        public bool Configured { get; set; }
     }
 }

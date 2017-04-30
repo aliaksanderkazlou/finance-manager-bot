@@ -15,8 +15,8 @@ namespace FinanceManager.Bot.Helpers.Extensions
                 case QuestionsEnum.CategorySupposedToSpentThisMonth:
                 case QuestionsEnum.AddNewCategoryOrNot:
                 case QuestionsEnum.CategoryName:
-                case QuestionsEnum.EditCategory:
-                case QuestionsEnum.DeleteCategory:
+                case QuestionsEnum.ChooseCategoryToDelete:
+                case QuestionsEnum.ChooseCategoryToEdit:
                     return true;
                 default:
                     return false;
