@@ -5,9 +5,11 @@ using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
 using FinanceManager.Bot.Framework.Enums;
+using FinanceManager.Bot.Framework.Helpers;
 using FinanceManager.Bot.Framework.Results;
-using FinanceManager.Bot.Framework.Structures;
+using FinanceManager.Bot.Framework.Services;
 using FinanceManager.Bot.Helpers.Enums;
+using FinanceManager.Bot.Helpers.Structures;
 using User = FinanceManager.Bot.DataAccessLayer.Models.User;
 using Message = FinanceManager.Bot.Helpers.Models.Message;
 
@@ -19,14 +21,20 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         private readonly ICategoryDocumentService _categoryDocumentService;
         private delegate Task<List<HandlerServiceResult>> QuestionsHandlerDelegate(string answer, User user);
         private Dictionary<QuestionsEnum, QuestionsHandlerDelegate> _questionsHandlerDictionary;
+        private readonly QuestionService _questionService;
+        private readonly ResultService _resultService;
         private QuestionTree _tree;
 
         public CategoryCommandHandlerService(
             IUserDocumentService userDocumentService,
-            ICategoryDocumentService categoryDocumentService)
+            ICategoryDocumentService categoryDocumentService,
+            QuestionService questionService,
+            ResultService resultService)
         {
             _categoryDocumentService = categoryDocumentService;
             _userDocumentService = userDocumentService;
+            _questionService = questionService;
+            _resultService = resultService;
             InitializeQuestionsHandlerDictionary();
             InitializeQuestionTree();
         }
@@ -35,126 +43,75 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             _tree = new QuestionTree
             {
-                Parent = null,
+                Children = new List<QuestionTree>
+                {
+                    //delete
+                    new QuestionTree
+                    {
+                        Question = QuestionsEnum.DeleteCategory,
+                        Children = new List<QuestionTree>
+                        {
+                            new QuestionTree
+                            {
+                                Question = QuestionsEnum.ChooseCategoryToDelete,
+                                Children = new List<QuestionTree>()
+                            }
+                        }
+                    },
+                    //edit
+                    new QuestionTree
+                    {
+                        Question = QuestionsEnum.EditCategory,
+                        Children = new List<QuestionTree>
+                        {
+                            new QuestionTree
+                            {
+                                Question = QuestionsEnum.ChooseCategoryToEdit,
+                                Children = new List<QuestionTree>()
+                            }
+                        }
+                    },
+                    //add
+                    new QuestionTree
+                    {
+                        Question = QuestionsEnum.CategoryName,
+                        Children = new List<QuestionTree>
+                        {
+                            new QuestionTree
+                            {
+                                Question = QuestionsEnum.CategoryType,
+                                Children = new List<QuestionTree>
+                                {
+                                    new QuestionTree
+                                    {
+                                        Question = QuestionsEnum.CategorySupposedToSpentThisMonth,
+                                        Children = new List<QuestionTree>()
+                                    },
+                                    new QuestionTree
+                                    {
+                                        Question = QuestionsEnum.None,
+                                        Children = new List<QuestionTree>()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 Question = QuestionsEnum.CategoryAction
             };
-
-            _tree.Children = new List<QuestionTree>();
-
-            // delete node
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.DeleteCategory
-            });
-
-            _tree = _tree.Children[0];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.ChooseCategory
-            });
-
-            while (_tree.Parent != null)
-            {
-                _tree = _tree.Parent;
-            }
-
-            // edit node
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.EditCategory
-            });
-
-            _tree = _tree.Children[1];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.ChooseCategory
-            });
-
-            while (_tree.Parent != null)
-            {
-                _tree = _tree.Parent;
-            }
-
-            // add node
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.AddCategory
-            });
-
-            _tree = _tree.Children[2];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.CategoryName
-            });
-
-            _tree = _tree.Children[0];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.CategoryType
-            });
-
-            _tree = _tree.Children[0];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.CategorySupposedToSpentThisMonth
-            });
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.None
-            });
-
-            _tree = _tree.Children[0];
-
-            _tree.Children = new List<QuestionTree>();
-
-            _tree.Children.Add(new QuestionTree
-            {
-                Parent = _tree,
-                Question = QuestionsEnum.None
-            });
-
-            while (_tree.Parent != null)
-            {
-                _tree = _tree.Parent;
-            }
         }
 
         private void InitializeQuestionsHandlerDictionary()
         {
             _questionsHandlerDictionary = new Dictionary<QuestionsEnum, QuestionsHandlerDelegate>
             {
-                {QuestionsEnum.CategoryAction, ConfigureCategoryOperation },
+                {QuestionsEnum.CategoryAction, ConfigureCategoryAction },
                 {QuestionsEnum.CategorySupposedToSpentThisMonth, ConfigureCategorySupposedToSpentThisMonth },
                 {QuestionsEnum.CategoryType, ConfigureCategoryType },
                 {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating },
                 {QuestionsEnum.CategoryName, ConfigureCategoryName},
-                {QuestionsEnum.DeleteCategory, ConfigureCategoryDelete },
-                {QuestionsEnum.EditCategory, ConfigureCategoryEdit }
+                {QuestionsEnum.ChooseCategoryToDelete, ConfigureCategoryDelete },
+                {QuestionsEnum.ChooseCategoryToEdit, ConfigureCategoryEdit }
             };
         }
 
@@ -162,47 +119,45 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             answer = answer.Trim();
 
+            List<HandlerServiceResult> result;
+
             var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
 
             var categoryToEdit = categories.FirstOrDefault(c => c.Name.Equals(answer));
 
             if (categoryToEdit != null)
             {
-                user.Context.LastQuestion = QuestionsEnum.CategoryName;
+                user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
 
                 user.Context.CategoryId = categoryToEdit.Id;
 
-                await _userDocumentService.UpdateAsync(user);
-
-                return new List<HandlerServiceResult>
+                result = new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Great! Please, type name of your category.",
-                        StatusCode = StatusCodeEnum.Ok
-                    }
+                    await _questionService.BuildQuestion(user)
+                };
+            }
+            else
+            {
+                user.Context.CurrentNode.Question = QuestionsEnum.None;
+
+                user.Context.CategoryId = null;
+
+                result = new List<HandlerServiceResult>
+                {
+                    _resultService.BuildCategoryNotFoundErrorResult()
                 };
             }
 
-            user.Context.LastQuestion = QuestionsEnum.None;
-
-            user.Context.CategoryId = null;
-
             await _userDocumentService.UpdateAsync(user);
 
-            return new List<HandlerServiceResult>
-            {
-                new HandlerServiceResult
-                {
-                    Message = "Sorry, you don't have any category with this name.",
-                    StatusCode = StatusCodeEnum.Ok
-                }
-            };
+            return result;
         }
 
         private async Task<List<HandlerServiceResult>> ConfigureCategoryDelete(string answer, User user)
         {
             answer = answer.Trim();
+
+            List<HandlerServiceResult> result;
 
             var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
 
@@ -210,38 +165,22 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             if (categoryToDelete != null)
             {
-                user.Context.LastQuestion = QuestionsEnum.None;
-
-                user.Context.CategoryId = null;
-
-                await _userDocumentService.UpdateAsync(user);
-
                 await _categoryDocumentService.DeleteAsync(categoryToDelete.Id);
 
-                return new List<HandlerServiceResult>
-                {
-                    new HandlerServiceResult
-                    {
-                        Message = string.Format("Category {0} was deleted successfully.", categoryToDelete.Name),
-                        StatusCode = StatusCodeEnum.Ok
-                    }
-                };
+                result = new List<HandlerServiceResult> {_resultService.BuildCategoryDeletedResult()};
+            }
+            else
+            {
+                result = new List<HandlerServiceResult>{ _resultService.BuildCategoryNotFoundErrorResult()};
             }
 
-            user.Context.LastQuestion = QuestionsEnum.None;
+            user.Context.CurrentNode = null;
 
             user.Context.CategoryId = null;
 
             await _userDocumentService.UpdateAsync(user);
 
-            return new List<HandlerServiceResult>
-            {
-                new HandlerServiceResult
-                {
-                    Message = "Sorry, you don't have any category with this name.",
-                    StatusCode = StatusCodeEnum.Ok
-                }
-            };
+            return result;
         }
 
         private async Task<List<HandlerServiceResult>> ConfigureCategoryName(string answer, User user)
@@ -252,11 +191,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, you should type something",
-                        StatusCode = StatusCodeEnum.Bad
-                    }
+                    _resultService.BuildClearCategoryNameErrorResult()
                 };
             }
 
@@ -264,11 +199,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, you cannot type more than 30 symbols",
-                        StatusCode = StatusCodeEnum.Bad
-                    }
+                    _resultService.BuildLongCategoryNameErrorResult()
                 };
             }
 
@@ -278,11 +209,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, name should be unique.",
-                        StatusCode = StatusCodeEnum.Bad
-                    }
+                    _resultService.BuildNotUniqueCategoryNameErrorResult()
                 };
             }
 
@@ -292,22 +219,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            user.Context.LastQuestion = QuestionsEnum.CategoryType;
+            user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
 
             await _userDocumentService.UpdateAsync(user);
 
             return new List<HandlerServiceResult>
             {
-                new HandlerServiceResult
-                {
-                    StatusCode = StatusCodeEnum.NeedKeyboard,
-                    Helper = new List<string>
-                    {
-                        "Income",
-                        "Expense"
-                    },
-                    Message = "Now select the type of your category."
-                }
             };
         }
 
@@ -319,16 +236,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, you can type only Yes or No, or you can /cancel command.",
-                        Helper = new List<string>
-                        {
-                            "Yes",
-                            "No"
-                        },
-                        StatusCode = StatusCodeEnum.NeedKeyboard
-                    }
+                    _resultService.BuildYouShouldTypeOnlyYesOrNoErrorResult()
                 };
             }
 
@@ -338,32 +246,26 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
                     UserId = user.Id,
+                    Configured = false
                 };
 
                 await _categoryDocumentService.InsertAsync(category);
 
-                user.Context.LastQuestion = QuestionsEnum.CategoryName;
+                user.Context.CurrentNode = user.Context.CurrentNode.Children[0];
+                user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
                 user.Context.CategoryId = category.Id;
 
                 await _userDocumentService.UpdateAsync(user);
 
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Great! Please, type name of your category.",
-                        StatusCode = StatusCodeEnum.Ok
-                    }
+                    await _questionService.BuildQuestion(user)
                 };
             }
 
             return new List<HandlerServiceResult>
             {
-                new HandlerServiceResult
-                {
-                    Message = "You always can create, edit or delete categories by /category command",
-                    StatusCode = StatusCodeEnum.Ok
-                }
+                _resultService.BuildCategoryActionsResult()
             };
         }
 
@@ -396,7 +298,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            user.Context.LastQuestion = categoryType == CategoryTypeEnum.Expense
+            user.Context.CurrentNode.Question = categoryType == CategoryTypeEnum.Expense
                 ? QuestionsEnum.CategorySupposedToSpentThisMonth
                 : QuestionsEnum.None;
 
@@ -426,7 +328,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             };
         }
 
-        private async Task<List<HandlerServiceResult>> ConfigureCategoryOperation(string answer, User user)
+        private async Task<List<HandlerServiceResult>> ConfigureCategoryAction(string answer, User user)
         {
             answer = answer.Trim();
 
@@ -434,17 +336,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Helper = new List<string>
-                        {
-                            "Add new category",
-                            "Edit category",
-                            "Delete category"
-                        },
-                        Message = "Sorry, you should chose one of three options, or you can /cancel command.",
-                        StatusCode = StatusCodeEnum.NeedKeyboard
-                    }
+                    _resultService.BuildCategoryActionWrongAnswerErrorResult()
                 };
             }
 
@@ -453,62 +345,29 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 var category = new Category
                 {
                     Id = _categoryDocumentService.GenerateNewId(),
-                    UserId = user.Id
+                    UserId = user.Id,
+                    Configured = false
                 };
 
                 await _categoryDocumentService.InsertAsync(category);
 
-                user.Context.LastQuestion = QuestionsEnum.CategoryName;
                 user.Context.CategoryId = category.Id;
 
-                await _userDocumentService.UpdateAsync(user);
-
-                return new List<HandlerServiceResult>
-                {
-                    new HandlerServiceResult
-                    {
-                        Message = "Great! Please, type name of your new category.",
-                        StatusCode = StatusCodeEnum.Ok
-                    }
-                };
+                user.Context.CurrentNode = user.Context.CurrentNode.FindChildByQuestion(QuestionsEnum.CategoryName);
             }
-
-            if (answer.Equals("Edit category"))
+            else if (answer.Equals("Edit category"))
             {
-                user.Context.LastQuestion = QuestionsEnum.EditCategory;
-
-                await _userDocumentService.UpdateAsync(user);
-
-                var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
-
-                return new List<HandlerServiceResult>
-                {
-                    new HandlerServiceResult
-                    {
-                        Message = "Please, choose category to edit.",
-                        StatusCode = StatusCodeEnum.NeedKeyboard,
-                        Helper = categories.Select(c => c.Name).ToList()
-                    }
-                };
+                user.Context.CurrentNode = user.Context.CurrentNode.FindChildByQuestion(QuestionsEnum.ChooseCategoryToEdit);
             }
             else
             {
-                user.Context.LastQuestion = QuestionsEnum.DeleteCategory;
-
-                await _userDocumentService.UpdateAsync(user);
-
-                var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
-
-                return new List<HandlerServiceResult>
-                {
-                    new HandlerServiceResult
-                    {
-                        Message = "Please, choose category to delete.",
-                        StatusCode = StatusCodeEnum.NeedKeyboard,
-                        Helper = categories.Select(c => c.Name).ToList()
-                    }
-                };
+                user.Context.CurrentNode = user.Context.CurrentNode.FindChildByQuestion(QuestionsEnum.ChooseCategoryToDelete);
             }
+
+            return new List<HandlerServiceResult>
+            {
+                await _questionService.BuildQuestion(user)
+            };
         }
 
         private async Task<List<HandlerServiceResult>> ConfigureCategorySupposedToSpentThisMonth(string answer, User user)
@@ -535,7 +394,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            user.Context.LastQuestion = QuestionsEnum.None;
+            user.Context.CurrentNode.Question = QuestionsEnum.None;
             user.Context.CategoryId = null;
 
             await _userDocumentService.UpdateAsync(user);
@@ -558,7 +417,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             try
             {
-                result = await _questionsHandlerDictionary[user.Context.LastQuestion].Invoke(answer, user);
+                result = await _questionsHandlerDictionary[user.Context.CurrentNode.Question].Invoke(answer, user);
             }
             catch (KeyNotFoundException)
             {
@@ -581,52 +440,32 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
 
-            if (categories != null && categories.Count > 0)
+            if (categories.Count > 0)
             {
                 user.Context = new Context
                 {
-                    LastQuestion = QuestionsEnum.CategoryAction
-                };
-
-                await _userDocumentService.UpdateAsync(user);
-
-                var categoriesString = string.Join("\n", categories.Select(c => "-" + c.Name));
-
-                return new List<HandlerServiceResult>
-                {
-                    new HandlerServiceResult
-                    {
-                        Helper = new List<string>
-                        {
-                            "Add new category",
-                            "Edit category",
-                            "Delete category"
-                        },
-                        Message = string.Format("Here's your categories list:\n{0}\nYou can add new, edit or delete category.", categoriesString),
-                        StatusCode = StatusCodeEnum.NeedKeyboard
-                    }
+                    CurrentNode = _tree
                 };
             }
-
-            user.Context = new Context
+            else
             {
-                LastQuestion = QuestionsEnum.AddNewCategoryOrNot
-            };
+                var parentTree = new QuestionTree
+                {
+                    Children = new List<QuestionTree>
+                    {
+                        _tree
+                    },
+                    Question = QuestionsEnum.AddNewCategoryOrNot
+                };
+
+                user.Context.CurrentNode = parentTree;
+            }
 
             await _userDocumentService.UpdateAsync(user);
 
             return new List<HandlerServiceResult>
             {
-                new HandlerServiceResult
-                {
-                    StatusCode = StatusCodeEnum.NeedKeyboard,
-                    Helper = new List<string>
-                    {
-                        "Yes",
-                        "No"
-                    },
-                    Message = "You don't have any categories yet. Do you want to add categories?"
-                }
+                await _questionService.BuildQuestion(user)
             };
         }
     }

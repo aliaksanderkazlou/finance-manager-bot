@@ -67,13 +67,13 @@ namespace FinanceManager.Bot.Framework.Services
 
                 try
                 {
-                    if (user.Context.LastQuestion != QuestionsEnum.None)
+                    if (user.Context.CurrentNode.Question != QuestionsEnum.None)
                     {
-                        if (user.Context.LastQuestion.IsCategoryEnum())
+                        if (user.Context.CurrentNode.Question.IsCategoryEnum())
                         {
                             result = await _categoryCommandHandlerService.HandleCategoryQuestion(message.Text, user);
                         }
-                        else if (user.Context.LastQuestion.IsOperationEnum())
+                        else if (user.Context.CurrentNode.Question.IsOperationEnum())
                         {
                             result = await _operationCommandHandlerService.HandleOperationQuestion(message.Text, user);
                         }

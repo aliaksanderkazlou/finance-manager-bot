@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.Framework.Enums;
@@ -27,35 +26,18 @@ namespace FinanceManager.Bot.Framework.Services
             InitializeQuestionBuilderDictionary();
         }
 
-        private QuestionsEnum GenerateNextQuestionAndRemoveFromList(User user)
-        {
-            var nextQuestion = GetNextOperationQuestion(user.Context.Questions);
-
-            if (nextQuestion != QuestionsEnum.None)
-            {
-                RemoveOperationQuestionFromList(user.Context.Questions, nextQuestion);
-            }
-
-            return nextQuestion;
-        }
-
         public async Task<HandlerServiceResult> BuildQuestion(User user)
         {
             _user = user;
-            var question = GenerateNextQuestionAndRemoveFromList(user);
 
-            user.Context.LastQuestion = question;
-
-            if (question == QuestionsEnum.None)
+            if (user.Context == null)
             {
-                await _documentServiceHelper.DeleteUserContextAsync(user);
-
                 return _resultService.BuildFinishedConfiguringResult();
             }
 
             try
             {
-                return await _questionsBuilderDictionary[question].Invoke();
+                return await _questionsBuilderDictionary[user.Context.CurrentNode.Question].Invoke();
             }
             catch (KeyNotFoundException)
             {
@@ -70,7 +52,103 @@ namespace FinanceManager.Bot.Framework.Services
                 {QuestionsEnum.OperationCategory, BuildOperationCategoryQuestion},
                 {QuestionsEnum.OperationDate, BuildOperationDateQuestion},
                 {QuestionsEnum.OperationSum, BuildOperationSumQuestion},
-                {QuestionsEnum.OperationType, BuildOperationTypeQuestion}
+                {QuestionsEnum.OperationType, BuildOperationTypeQuestion},
+                {QuestionsEnum.CategoryAction, BuildCategoryActionQuestion },
+                {QuestionsEnum.AddNewCategoryOrNot, BuildAddCategoryOrNotQuestion },
+                {QuestionsEnum.CategoryName, BuildCategoryNameQuestion},
+                {QuestionsEnum.ChooseCategoryToEdit, BuildCategoryToEditQuestion },
+                {QuestionsEnum.ChooseCategoryToDelete, BuildCategoryToDeleteQuestion },
+                {QuestionsEnum.CategoryType, BuildCategoryTypeQuestion },
+                {QuestionsEnum.CategorySupposedToSpentThisMonth, CategorySupposedToSpentThisMonthQuestion }
+            };
+        }
+
+        private Task<HandlerServiceResult> CategorySupposedToSpentThisMonthQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, type the amount of money you would like to spend per month.",
+                StatusCode = StatusCodeEnum.Ok
+            });
+        }
+
+        private Task<HandlerServiceResult> BuildCategoryTypeQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, chose a type of category.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "Income",
+                    "Expense"
+                }
+            });
+        }
+
+        private async Task<HandlerServiceResult> BuildCategoryToDeleteQuestion()
+        {
+            var categories = await _documentServiceHelper.GetUserCategories(_user.Id);
+
+            return new HandlerServiceResult
+            {
+                Message = "Please, chose category to delete.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = categories.Select(c => c.Name).ToList()
+            };
+        }
+
+        private async Task<HandlerServiceResult> BuildCategoryToEditQuestion()
+        {
+            var categories = await _documentServiceHelper.GetUserCategories(_user.Id);
+
+            return new HandlerServiceResult
+            {
+                Message = "Please, chose category to edit.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = categories.Select(c => c.Name).ToList()
+            };
+        }
+
+        private Task<HandlerServiceResult> BuildCategoryNameQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, type category name.",
+                StatusCode = StatusCodeEnum.Ok
+            });
+        }
+
+        private Task<HandlerServiceResult> BuildAddCategoryOrNotQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "Yes",
+                    "No"
+                },
+                Message = "You don't have any categories yet. Do you want to add categories?"
+            });
+        }
+
+        private async Task<HandlerServiceResult> BuildCategoryActionQuestion()
+        {
+            var categories = await _documentServiceHelper.GetUserCategories(_user.Id);
+
+            var categoriesString = string.Join("\n", categories.Select(c => c.Name));
+
+            return new HandlerServiceResult
+            {
+                Helper = new List<string>
+                {
+                    "Add new category",
+                    "Edit category",
+                    "Delete category"
+                },
+                Message = $"Here's your categories list:\n{categoriesString}\nYou can add new, edit or delete category.",
+                StatusCode = StatusCodeEnum.NeedKeyboard
             };
         }
 

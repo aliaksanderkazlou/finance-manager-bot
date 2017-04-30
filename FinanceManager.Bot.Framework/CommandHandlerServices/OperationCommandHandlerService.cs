@@ -237,7 +237,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             try
             {
-                result = await _questionsHandlerDictionary[user.Context.LastQuestion].Invoke(answer, user);
+                result = await _questionsHandlerDictionary[user.Context.CurrentNode.Question].Invoke(answer, user);
             }
             catch (KeyNotFoundException)
             {
@@ -251,7 +251,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
-            user.Context.Questions = _questionService.GetOperationQuestions();
+            //user.Context.Questions = _questionService.GetOperationQuestions();
 
             var result = new List<HandlerServiceResult>
             {

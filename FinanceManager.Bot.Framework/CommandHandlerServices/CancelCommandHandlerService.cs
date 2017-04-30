@@ -40,7 +40,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 await _operationDocumentService.DeleteAsync(user.Context.OperationId);
             }
 
-            user.Context.LastQuestion = QuestionsEnum.None;
+            //user.Context.LastQuestion = QuestionsEnum.None;
             user.Context.CategoryId = null;
             user.Context.OperationId = null;
 

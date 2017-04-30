@@ -39,10 +39,10 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     ChatId = message.UserInfo.ChatId,
                     FirstName = message.UserInfo.FirstName,
                     LastName = message.UserInfo.LastName,
-                    Context = new Context
-                    {
-                        LastQuestion = QuestionsEnum.None
-                    }
+                    //Context = new Context
+                    //{
+                    //    LastQuestion = QuestionsEnum.None
+                    //}
                 };
 
                 var defaultIncomeCategory = new Category

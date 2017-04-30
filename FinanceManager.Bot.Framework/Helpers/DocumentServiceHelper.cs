@@ -40,12 +40,17 @@ namespace FinanceManager.Bot.Framework.Helpers
             return await _userDocumentService.GetByChatId(chatId);
         }
 
+        public async Task<List<Category>> GetUserCategories(string userId)
+        {
+            return await _categoryDocumentService.GetByUserIdAsync(userId);
+        }
+
         public async Task DeleteUserContextAsync(User user)
         {
-            user.Context.LastQuestion = QuestionsEnum.None;
+           // user.Context.LastQuestion = QuestionsEnum.None;
             user.Context.OperationId = null;
             user.Context.CategoryId = null;
-            user.Context.Questions = null;
+            //user.Context.Questions = null;
 
             await _userDocumentService.UpdateAsync(user);
         }
