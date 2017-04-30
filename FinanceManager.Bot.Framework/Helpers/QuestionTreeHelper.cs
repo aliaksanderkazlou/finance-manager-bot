@@ -8,7 +8,7 @@ namespace FinanceManager.Bot.Framework.Helpers
     {
         public static QuestionTree FindChildByQuestion(this QuestionTree tree, QuestionsEnum question)
         {
-            return tree.Children.FirstOrDefault(child => child.Question == QuestionsEnum.CategoryName);
+            return tree.Children.FirstOrDefault(child => child.Question == question);
         }
     }
 }

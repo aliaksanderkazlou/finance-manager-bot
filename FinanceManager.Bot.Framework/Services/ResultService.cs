@@ -6,6 +6,29 @@ namespace FinanceManager.Bot.Framework.Services
 {
     public class ResultService
     {
+        public HandlerServiceResult BuildCategoryInvalidSupposedToSpent()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, you can type only number greater than 0, or you can /cancel command.",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+        
+        public HandlerServiceResult BuildCategoryInvalidTypeErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, you can type only Income or Expense, or you can /cancel command",
+                Helper = new List<string>
+                {
+                    "Income",
+                    "Expense"
+                },
+                StatusCode = StatusCodeEnum.NeedKeyboard
+            };
+        }
+
         public HandlerServiceResult BuildNotUniqueCategoryNameErrorResult()
         {
             return new HandlerServiceResult
@@ -116,11 +139,20 @@ namespace FinanceManager.Bot.Framework.Services
             };
         }
 
-        public HandlerServiceResult BuildFinishedConfiguringResult()
+        public HandlerServiceResult BuildFinishedConfiguringOperationResult()
         {
             return new HandlerServiceResult
             {
-                Message = "Well done!",
+                Message = "You successfully configured your operation.",
+                StatusCode = StatusCodeEnum.Ok
+            };
+        }
+
+        public HandlerServiceResult BuildFinishedConfiguringCategoryResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "You successfully configured your category.",
                 StatusCode = StatusCodeEnum.Ok
             };
         }

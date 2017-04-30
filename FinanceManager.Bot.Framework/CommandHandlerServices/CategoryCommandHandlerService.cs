@@ -48,28 +48,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     //delete
                     new QuestionTree
                     {
-                        Question = QuestionsEnum.DeleteCategory,
-                        Children = new List<QuestionTree>
-                        {
-                            new QuestionTree
-                            {
-                                Question = QuestionsEnum.ChooseCategoryToDelete,
-                                Children = new List<QuestionTree>()
-                            }
-                        }
+                        Question = QuestionsEnum.ChooseCategoryToDelete,
+                        Children = new List<QuestionTree>()
                     },
                     //edit
                     new QuestionTree
                     {
-                        Question = QuestionsEnum.EditCategory,
-                        Children = new List<QuestionTree>
-                        {
-                            new QuestionTree
-                            {
-                                Question = QuestionsEnum.ChooseCategoryToEdit,
-                                Children = new List<QuestionTree>()
-                            }
-                        }
+                        Question = QuestionsEnum.ChooseCategoryToEdit,
+                        Children = new List<QuestionTree>()
                     },
                     //add
                     new QuestionTree
@@ -85,7 +71,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                                     new QuestionTree
                                     {
                                         Question = QuestionsEnum.CategorySupposedToSpentThisMonth,
-                                        Children = new List<QuestionTree>()
+                                        Children = new List<QuestionTree>
+                                        {
+                                            new QuestionTree
+                                            {
+                                                Question = QuestionsEnum.None,
+                                                Children = new List<QuestionTree>()
+                                            }
+                                        }
                                     },
                                     new QuestionTree
                                     {
@@ -225,6 +218,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             return new List<HandlerServiceResult>
             {
+                await _questionService.BuildQuestion(user)
             };
         }
 
@@ -273,20 +267,13 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             answer = answer.Trim();
 
+            List<HandlerServiceResult> result;
+
             if (string.IsNullOrEmpty(answer) || !answer.Contains("Income") && !answer.Contains("Expense"))
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, you can type only Income or Expense, or you can /cancel command",
-                        Helper = new List<string>
-                        {
-                            "Income",
-                            "Expense"
-                        },
-                        StatusCode = StatusCodeEnum.NeedKeyboard
-                    }
+                    _resultService.BuildCategoryInvalidTypeErrorResult()
                 };
             }
 
@@ -296,36 +283,30 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             category.Type = categoryType;
 
-            await _categoryDocumentService.UpdateAsync(category);
-
-            user.Context.CurrentNode.Question = categoryType == CategoryTypeEnum.Expense
-                ? QuestionsEnum.CategorySupposedToSpentThisMonth
-                : QuestionsEnum.None;
-
-            
             if (categoryType == CategoryTypeEnum.Income)
             {
                 user.Context.CategoryId = null;
+                user.Context.CurrentNode = null;
 
-                return new List<HandlerServiceResult>
+                result = new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Your category configured. Now you can create operations in this category by using /category command.",
-                        StatusCode = StatusCodeEnum.Ok
-                    }
+                    _resultService.BuildFinishedConfiguringCategoryResult()
+                };
+            }
+            else
+            {
+                user.Context.CurrentNode =
+                    user.Context.CurrentNode.FindChildByQuestion(QuestionsEnum.CategorySupposedToSpentThisMonth);
+
+                result = new List<HandlerServiceResult>
+                {
+                    await _questionService.BuildQuestion(user)
                 };
             }
 
             await _userDocumentService.UpdateAsync(user);
 
-            return new List<HandlerServiceResult>
-            {
-                new HandlerServiceResult
-                {
-                    Message = string.Format("You choose {0}. Please, type the amount of money you would like to spend per month.", answer)
-                }
-            };
+            return result;
         }
 
         private async Task<List<HandlerServiceResult>> ConfigureCategoryAction(string answer, User user)
@@ -364,6 +345,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 user.Context.CurrentNode = user.Context.CurrentNode.FindChildByQuestion(QuestionsEnum.ChooseCategoryToDelete);
             }
 
+            await _userDocumentService.UpdateAsync(user);
+
             return new List<HandlerServiceResult>
             {
                 await _questionService.BuildQuestion(user)
@@ -378,11 +361,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 return new List<HandlerServiceResult>
                 {
-                    new HandlerServiceResult
-                    {
-                        Message = "Sorry, you can type only number greater than 0, or you can /cancel command.",
-                        StatusCode = StatusCodeEnum.Bad
-                    }
+                    _resultService.BuildCategoryInvalidSupposedToSpent()
                 };
             }
 
@@ -394,18 +373,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            user.Context.CurrentNode.Question = QuestionsEnum.None;
+            user.Context.CurrentNode = null;
             user.Context.CategoryId = null;
 
             await _userDocumentService.UpdateAsync(user);
 
             return new List<HandlerServiceResult>
             {
-                new HandlerServiceResult
-                {
-                    Message = "Your category configured. Now you can create operations in this category by using /category command.",
-                    StatusCode = StatusCodeEnum.Ok
-                }
+                _resultService.BuildFinishedConfiguringCategoryResult()
             };
         }
 

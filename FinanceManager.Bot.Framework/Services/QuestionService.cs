@@ -30,11 +30,6 @@ namespace FinanceManager.Bot.Framework.Services
         {
             _user = user;
 
-            if (user.Context == null)
-            {
-                return _resultService.BuildFinishedConfiguringResult();
-            }
-
             try
             {
                 return await _questionsBuilderDictionary[user.Context.CurrentNode.Question].Invoke();

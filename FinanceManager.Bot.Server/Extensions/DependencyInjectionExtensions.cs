@@ -14,10 +14,10 @@ namespace FinanceManager.Bot.Server.Extensions
     {
         public static IServiceCollection AddAppDependencies(this IServiceCollection collection)
         {
-            collection.AddTransient<CommandService>();
-            collection.AddTransient<QuestionService>();
-            collection.AddTransient<ResultService>();
-            collection.AddTransient<DocumentServiceHelper>();
+            collection.AddSingleton<CommandService>();
+            collection.AddSingleton<QuestionService>();
+            collection.AddSingleton<ResultService>();
+            collection.AddSingleton<DocumentServiceHelper>();
             collection.AddCommandHandlerServices();
             collection.AddDocumentServices();
             return collection;
@@ -25,12 +25,12 @@ namespace FinanceManager.Bot.Server.Extensions
 
         private static void AddCommandHandlerServices(this IServiceCollection collection)
         {
-            collection.AddTransient<HelpCommandHandlerService>();
-            collection.AddTransient<CategoryCommandHandlerService>();
-            collection.AddTransient<UnhandledMessageService>();
-            collection.AddTransient<CancelCommandHandlerService>();
-            collection.AddTransient<OperationCommandHandlerService>();
-            collection.AddTransient<StartCommandHandlerService>();
+            collection.AddSingleton<HelpCommandHandlerService>();
+            collection.AddSingleton<CategoryCommandHandlerService>();
+            collection.AddSingleton<UnhandledMessageService>();
+            collection.AddSingleton<CancelCommandHandlerService>();
+            collection.AddSingleton<OperationCommandHandlerService>();
+            collection.AddSingleton<StartCommandHandlerService>();
         }
 
         private static void AddDocumentServices(this IServiceCollection collection)
