@@ -176,8 +176,12 @@ namespace FinanceManager.Bot.Framework.Services
         {
             return Task.FromResult(new HandlerServiceResult
             {
-                Message = "Please, enter the date.",
-                StatusCode = StatusCodeEnum.Ok
+                Message = "Please, enter the date in dd.mm.yyyy format. Or just click now.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "now"
+                }
             });
         }
 

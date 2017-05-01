@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
-using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Helpers;
 using FinanceManager.Bot.Framework.Results;
 using FinanceManager.Bot.Framework.Services;
 using FinanceManager.Bot.Helpers.Enums;
 using FinanceManager.Bot.Helpers.Models;
+using FinanceManager.Bot.Helpers.Structures;
 
 namespace FinanceManager.Bot.Framework.CommandHandlerServices
 {
@@ -26,6 +25,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         private readonly DocumentServiceHelper _documentServiceHelper;
         private delegate Task<List<HandlerServiceResult>> QuestionsHandlerDelegate(string answer, User user);
         private Dictionary<QuestionsEnum, QuestionsHandlerDelegate> _questionsHandlerDictionary;
+        private QuestionTree _tree;
 
         public OperationCommandHandlerService(
             IUserDocumentService userDocumentService,
@@ -42,6 +42,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             _questionService = questionService;
             _documentServiceHelper = documentServiceHelper;
             InitializeQuestionsHandlerDictionary();
+            InitializeQuestionTree();
         }
 
         private void InitializeQuestionsHandlerDictionary()
@@ -50,8 +51,30 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             {
                 {QuestionsEnum.OperationDate, ConfigureOperationDate },
                 {QuestionsEnum.OperationSum, ConfigureOperationSum },
-                {QuestionsEnum.OperationType, ConfigureOperationType },
                 {QuestionsEnum.OperationCategory, ConfigureOperationCategory}
+            };
+        }
+
+        private void InitializeQuestionTree()
+        {
+            _tree = new QuestionTree
+            {
+                Question = QuestionsEnum.OperationCategory,
+                Children = new List<QuestionTree>
+                {
+                    new QuestionTree
+                    {
+                        Question = QuestionsEnum.OperationSum,
+                        Children = new List<QuestionTree>
+                        {
+                            new QuestionTree
+                            {
+                                Question = QuestionsEnum.OperationDate,
+                                Children = new List<QuestionTree>()
+                            }
+                        }
+                    }
+                }
             };
         }
 
@@ -81,40 +104,44 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             answer = answer.Trim();
 
-            if (string.IsNullOrEmpty(answer))
+            if (string.IsNullOrEmpty(answer) || !answer.Equals("now"))
             {
                 return new List<HandlerServiceResult> { _resultService.BuildOperationInvalidDateErrorResult() };
             }
 
-            var dayMonthYear = answer.Split('.');
-
             DateTime date;
 
-            try
+            if (answer.Equals("now"))
             {
-                date = new DateTime(int.Parse(dayMonthYear[2]), int.Parse(dayMonthYear[1]), int.Parse(dayMonthYear[0]));
+                date = DateTime.Now;
             }
-            catch (Exception)
+            else
             {
-                return new List<HandlerServiceResult> {_resultService.BuildOperationInvalidDateErrorResult()};
+                var dayMonthYear = answer.Split('.');
+
+                try
+                {
+                    date = new DateTime(int.Parse(dayMonthYear[2]), int.Parse(dayMonthYear[1]),
+                        int.Parse(dayMonthYear[0]));
+                }
+                catch (Exception)
+                {
+                    return new List<HandlerServiceResult> {_resultService.BuildOperationInvalidDateErrorResult()};
+                }
             }
 
             var operation = await GetOrCreateOperationAsync(user);
 
             operation.Date = date;
+            operation.Configured = true;
 
             await _operationDocumentService.UpdateAsync(operation);
 
-            var nextQuestion = await _questionService.BuildQuestion(user);
-
-            if (nextQuestion.StatusCode == StatusCodeEnum.Bad)
-            {
-                await _documentServiceHelper.DeleteUserContextAsync(user);
-            }
+            user.Context = null;
 
             await _userDocumentService.UpdateAsync(user);
             
-            return new List<HandlerServiceResult> {nextQuestion};
+            return new List<HandlerServiceResult> {_resultService.BuildFinishedConfiguringOperationResult()};
         }
 
         private async Task<List<HandlerServiceResult>> ConfigureOperationSum(string answer, User user)
@@ -134,12 +161,16 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             var sumInCents = (long)sum * 100;
 
-            category.SpentInCents += sumInCents;
-            category.SpentThisMonthInCents += sumInCents;
-
-            if (category.SpentThisMonthInCents > category.SupposedToSpentThisMonthInCents)
+            if (category.Type == CategoryTypeEnum.Expense)
             {
-                result.Add(_resultService.BuildOperationExceededAmountForThisMonth((float)(category.SpentThisMonthInCents - category.SupposedToSpentThisMonthInCents) / 100));
+                category.SpentInCents += sumInCents;
+                category.SpentThisMonthInCents += sumInCents;
+
+                if (category.SpentThisMonthInCents > category.SupposedToSpentThisMonthInCents)
+                {
+                    result.Add(_resultService.BuildOperationExceededAmountForThisMonth(
+                        (float) (category.SpentThisMonthInCents - category.SupposedToSpentThisMonthInCents) / 100));
+                }
             }
 
             operation.CreditAmountInCents = sumInCents;
@@ -151,12 +182,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _categoryDocumentService.UpdateAsync(category);
 
-            var nextQuestion = await _questionService.BuildQuestion(user);
+            user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
 
-            if (nextQuestion.StatusCode == StatusCodeEnum.Bad)
-            {
-                await _documentServiceHelper.DeleteUserContextAsync(user);
-            }
+            var nextQuestion = await _questionService.BuildQuestion(user);
 
             await _userDocumentService.UpdateAsync(user);
 
@@ -165,28 +193,36 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             return result;
         }
 
-        private async Task<List<HandlerServiceResult>> ConfigureOperationType(string answer, User user)
+        private async Task<List<HandlerServiceResult>> ConfigureOperationType(CategoryTypeEnum type, User user)
         {
-            answer = answer.Trim();
+            HandlerServiceResult nextQuestion;
 
-            if (string.IsNullOrEmpty(answer) || !answer.Contains("+") && !answer.Contains("-"))
+            var categories = await _categoryDocumentService.GetByUserIdAsync(user.Id);
+
+            categories = categories.Where(c => c.Configured && c.Type == type).ToList();
+
+            if (categories.Count > 0)
             {
-                return new List<HandlerServiceResult> { _resultService.BuildOperationInvalidTypeErrorResult() };
+                var operation = new Operation
+                {
+                    Configured = false,
+                    Id = _operationDocumentService.GenerateNewId()
+                };
+
+                await _operationDocumentService.InsertAsync(operation);
+
+                user.Context = new Context
+                {
+                    OperationId = operation.Id,
+                    CategoryType = type,
+                    CurrentNode = _tree
+                };
+
+                nextQuestion = await _questionService.BuildQuestion(user);
             }
-
-            var operation = await GetOrCreateOperationAsync(user);
-
-            user.Context.OperationId = operation.Id;
-
-            user.Context.CategoryType = answer.Equals("+")
-                ? CategoryTypeEnum.Income
-                : CategoryTypeEnum.Expense;
-
-            var nextQuestion = await _questionService.BuildQuestion(user);
-
-            if (nextQuestion.StatusCode == StatusCodeEnum.Bad)
+            else
             {
-                await _documentServiceHelper.DeleteUserContextAsync(user);
+                nextQuestion = _resultService.BuildOperationTypeCleanCategoryList();
             }
 
             await _userDocumentService.UpdateAsync(user);
@@ -219,12 +255,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _documentServiceHelper.UpdateOperationAsync(operation);
 
-            var nextQuestion = await _questionService.BuildQuestion(user);
+            user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
 
-            if (nextQuestion.StatusCode == StatusCodeEnum.Bad)
-            {
-                await _documentServiceHelper.DeleteUserContextAsync(user);
-            }
+            var nextQuestion = await _questionService.BuildQuestion(user);
 
             await _userDocumentService.UpdateAsync(user);
 
@@ -251,12 +284,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
-            //user.Context.Questions = _questionService.GetOperationQuestions();
+            var categoryType = message.Text.Equals("/income") ? CategoryTypeEnum.Income : CategoryTypeEnum.Expense;
 
-            var result = new List<HandlerServiceResult>
+            user.Context = new Context
             {
-                await _questionService.BuildQuestion(user)
+                CurrentNode = _tree
             };
+
+            var result = await ConfigureOperationType(categoryType, user);
 
             await _userDocumentService.UpdateAsync(user);
 
