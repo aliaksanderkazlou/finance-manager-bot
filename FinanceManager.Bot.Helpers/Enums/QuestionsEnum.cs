@@ -17,6 +17,9 @@
         OperationSum,
         OperationDate,
         ChooseCategoryToEdit,
-        ChooseCategoryToDelete
+        ChooseCategoryToDelete,
+        StatsAction,
+        StatsCategory,
+        StatsCategoryDateRange
     }
 }

@@ -55,7 +55,47 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     new QuestionTree
                     {
                         Question = QuestionsEnum.ChooseCategoryToEdit,
-                        Children = new List<QuestionTree>()
+                        Children = new List<QuestionTree>
+                        {
+                            new QuestionTree
+                            {
+                                Question = QuestionsEnum.CategoryName,
+                                Children = new List<QuestionTree>
+                                {
+                                    new QuestionTree
+                                    {
+                                        Question = QuestionsEnum.CategoryCurrency,
+                                        Children = new List<QuestionTree>
+                                        {
+                                            new QuestionTree
+                                            {
+                                                Question = QuestionsEnum.CategoryType,
+                                                Children = new List<QuestionTree>
+                                                {
+                                                    new QuestionTree
+                                                    {
+                                                        Question = QuestionsEnum.CategorySupposedToSpentThisMonth,
+                                                        Children = new List<QuestionTree>
+                                                        {
+                                                            new QuestionTree
+                                                            {
+                                                                Question = QuestionsEnum.None,
+                                                                Children = new List<QuestionTree>()
+                                                            }
+                                                        }
+                                                    },
+                                                    new QuestionTree
+                                                    {
+                                                        Question = QuestionsEnum.None,
+                                                        Children = new List<QuestionTree>()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     //add
                     new QuestionTree
@@ -65,25 +105,32 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                         {
                             new QuestionTree
                             {
-                                Question = QuestionsEnum.CategoryType,
+                                Question = QuestionsEnum.CategoryCurrency,
                                 Children = new List<QuestionTree>
                                 {
                                     new QuestionTree
                                     {
-                                        Question = QuestionsEnum.CategorySupposedToSpentThisMonth,
+                                        Question = QuestionsEnum.CategoryType,
                                         Children = new List<QuestionTree>
                                         {
+                                            new QuestionTree
+                                            {
+                                                Question = QuestionsEnum.CategorySupposedToSpentThisMonth,
+                                                Children = new List<QuestionTree>
+                                                {
+                                                    new QuestionTree
+                                                    {
+                                                        Question = QuestionsEnum.None,
+                                                        Children = new List<QuestionTree>()
+                                                    }
+                                                }
+                                            },
                                             new QuestionTree
                                             {
                                                 Question = QuestionsEnum.None,
                                                 Children = new List<QuestionTree>()
                                             }
                                         }
-                                    },
-                                    new QuestionTree
-                                    {
-                                        Question = QuestionsEnum.None,
-                                        Children = new List<QuestionTree>()
                                     }
                                 }
                             }
@@ -104,7 +151,36 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {QuestionsEnum.AddNewCategoryOrNot, ConfigureCategoryCreating },
                 {QuestionsEnum.CategoryName, ConfigureCategoryName},
                 {QuestionsEnum.ChooseCategoryToDelete, ConfigureCategoryDelete },
-                {QuestionsEnum.ChooseCategoryToEdit, ConfigureCategoryEdit }
+                {QuestionsEnum.ChooseCategoryToEdit, ConfigureCategoryEdit },
+                {QuestionsEnum.CategoryCurrency, ConfigureCategoryCurrency }
+            };
+        }
+
+        private async Task<List<HandlerServiceResult>> ConfigureCategoryCurrency(string answer, User user)
+        {
+            answer = answer.Trim();
+
+            if (string.IsNullOrEmpty(answer) || !answer.Equals("EUR") && !answer.Equals("USD") && !answer.Equals("BYN"))
+            {
+                return new List<HandlerServiceResult>
+                {
+                    _resultService.BuildCategoryInvalidCurrencyErrorResult()
+                };
+            }
+
+            var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
+
+            category.Currency = answer;
+
+            await _categoryDocumentService.UpdateAsync(category);
+
+            user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
+
+            await _userDocumentService.UpdateAsync(user);
+
+            return new List<HandlerServiceResult>
+            {
+                await _questionService.BuildQuestion(user)
             };
         }
 
@@ -121,7 +197,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             if (categoryToEdit != null)
             {
                 user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();
-
                 user.Context.CategoryId = categoryToEdit.Id;
 
                 result = new List<HandlerServiceResult>
@@ -196,7 +271,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 };
             }
 
-            var categoriesWithTheSameName = await _categoryDocumentService.GetByNameAsync(answer);
+            var categoriesWithTheSameName = await _categoryDocumentService.GetByUserIdAsync(user.Id);
+
+            categoriesWithTheSameName = categoriesWithTheSameName.Where(c =>c.Configured && c.Name.Equals(answer)).ToList();
 
             if (categoriesWithTheSameName.Count > 0)
             {
@@ -369,8 +446,8 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
             var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
 
             category.SupposedToSpentThisMonthInCents = number * 100;
-            category.SpentThisMonthInCents = 0;
-            category.SpentInCents = 0;
+            category.ExpenseForThisMonthInCents = 0;
+            category.ExpenseInCents = 0;
             category.Configured = true;
 
             await _categoryDocumentService.UpdateAsync(category);

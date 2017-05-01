@@ -104,7 +104,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             answer = answer.Trim();
 
-            if (string.IsNullOrEmpty(answer) || !answer.Equals("now"))
+            if (string.IsNullOrEmpty(answer))
             {
                 return new List<HandlerServiceResult> { _resultService.BuildOperationInvalidDateErrorResult() };
             }
@@ -128,6 +128,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {
                     return new List<HandlerServiceResult> {_resultService.BuildOperationInvalidDateErrorResult()};
                 }
+            }
+
+            if (date > DateTime.Now)
+            {
+                return new List<HandlerServiceResult>
+                {
+                    _resultService.BuildOperationInvalidDateErrorResult()
+                };
             }
 
             var operation = await GetOrCreateOperationAsync(user);
@@ -159,18 +167,23 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             var category = await _categoryDocumentService.GetByIdAsync(operation.CategoryId);
 
-            var sumInCents = (long)sum * 100;
+            var sumInCents = (long) (sum * 100);
 
             if (category.Type == CategoryTypeEnum.Expense)
             {
-                category.SpentInCents += sumInCents;
-                category.SpentThisMonthInCents += sumInCents;
+                category.ExpenseInCents += sumInCents;
+                category.ExpenseForThisMonthInCents += sumInCents;
 
-                if (category.SpentThisMonthInCents > category.SupposedToSpentThisMonthInCents)
+                if (category.ExpenseForThisMonthInCents > category.SupposedToSpentThisMonthInCents)
                 {
                     result.Add(_resultService.BuildOperationExceededAmountForThisMonth(
-                        (float) (category.SpentThisMonthInCents - category.SupposedToSpentThisMonthInCents) / 100));
+                        (float) (category.ExpenseForThisMonthInCents - category.SupposedToSpentThisMonthInCents) / 100));
                 }
+            }
+            else
+            {
+                category.IncomeForThisMonthInCents += sumInCents;
+                category.IncomeInCents += sumInCents;
             }
 
             operation.CreditAmountInCents = sumInCents;

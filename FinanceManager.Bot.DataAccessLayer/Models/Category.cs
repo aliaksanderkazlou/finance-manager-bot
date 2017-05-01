@@ -8,11 +8,17 @@ namespace FinanceManager.Bot.DataAccessLayer.Models
 
         public string Name { get; set; }
 
-        public long SpentThisMonthInCents { get; set; }
+        public long ExpenseForThisMonthInCents { get; set; }
 
         public long SupposedToSpentThisMonthInCents { get; set; }
 
-        public long SpentInCents { get; set; }
+        public long ExpenseInCents { get; set; }
+
+        public long IncomeForThisMonthInCents { get; set; }
+
+        public long IncomeInCents { get; set; }
+
+        public string Currency { get; set; }
 
         public CategoryTypeEnum Type { get; set; }
 

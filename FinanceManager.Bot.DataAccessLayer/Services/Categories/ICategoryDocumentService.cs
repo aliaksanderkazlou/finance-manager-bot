@@ -8,9 +8,5 @@ namespace FinanceManager.Bot.DataAccessLayer.Services.Categories
     public interface ICategoryDocumentService : IDocumentService<Category>
     {
         Task<List<Category>> GetByUserIdAsync(string id);
-
-        Task<List<Category>> GetByNameAsync(string name);
-
-        Task<List<Category>> GetByTypeAsync(CategoryTypeEnum type);
     }
 }

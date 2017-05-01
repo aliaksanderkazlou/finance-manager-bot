@@ -49,11 +49,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Id = _categoryDocumentService.GenerateNewId(),
                     UserId = user.Id,
                     Name = "Default Income Category",
-                    SpentInCents = 0,
-                    SpentThisMonthInCents = 0,
+                    ExpenseInCents = 0,
+                    ExpenseForThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
                     Type = CategoryTypeEnum.Income,
-                    Configured = true
+                    Configured = true,
+                    Currency = "BYN"
                 };
 
                 var defaultExpenseCategory = new Category
@@ -61,11 +62,12 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Id = _categoryDocumentService.GenerateNewId(),
                     UserId = user.Id,
                     Name = "Default Expense Category",
-                    SpentInCents = 0,
-                    SpentThisMonthInCents = 0,
+                    ExpenseInCents = 0,
+                    ExpenseForThisMonthInCents = 0,
                     SupposedToSpentThisMonthInCents = 0,
                     Type = CategoryTypeEnum.Expense,
-                    Configured = true
+                    Configured = true,
+                    Currency = "BYN"
                 };
 
                 await _userDocumentService.InsertAsync(user);

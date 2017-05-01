@@ -6,6 +6,46 @@ namespace FinanceManager.Bot.Framework.Services
 {
     public class ResultService
     {
+        public HandlerServiceResult BuildStatsNoOperationsOnDateRangeErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "There are no operations on this date range",
+                StatusCode = StatusCodeEnum.Ok
+            };
+        }
+
+        public HandlerServiceResult BuildCategoryInvalidCurrencyErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "You should select one of 3 options.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "EUR",
+                    "USD",
+                    "BYN"
+                }
+            };
+        }
+
+        public HandlerServiceResult BuildStatsWrongArgumentErrorResult()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, you should select one of 4 variants.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "All categories",
+                    "Income only",
+                    "Expense only",
+                    "Custom category"
+                }
+            };
+        }
+
         public HandlerServiceResult BuildCategoryInvalidSupposedToSpent()
         {
             return new HandlerServiceResult
@@ -171,6 +211,15 @@ namespace FinanceManager.Bot.Framework.Services
             return new HandlerServiceResult
             {
                 Message = "You should type + or -",
+                StatusCode = StatusCodeEnum.Bad
+            };
+        }
+
+        public HandlerServiceResult BuildCleanCategoryList()
+        {
+            return new HandlerServiceResult
+            {
+                Message = "Sorry, there are no categories.",
                 StatusCode = StatusCodeEnum.Bad
             };
         }

@@ -18,6 +18,7 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<QuestionService>();
             collection.AddTransient<ResultService>();
             collection.AddTransient<DocumentServiceHelper>();
+            collection.AddTransient<StatsService>();
             collection.AddCommandHandlerServices();
             collection.AddDocumentServices();
             return collection;
@@ -31,6 +32,7 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<CancelCommandHandlerService>();
             collection.AddTransient<OperationCommandHandlerService>();
             collection.AddTransient<StartCommandHandlerService>();
+            collection.AddTransient<StatsCommandHandlerService>();
         }
 
         private static void AddDocumentServices(this IServiceCollection collection)

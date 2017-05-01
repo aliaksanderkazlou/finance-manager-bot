@@ -36,5 +36,18 @@ namespace FinanceManager.Bot.Helpers.Extensions
                     return false;
             }
         }
+
+        public static bool IsStatsEnum(this QuestionsEnum questionsEnum)
+        {
+            switch (questionsEnum)
+            {
+                case QuestionsEnum.StatsAction:
+                case QuestionsEnum.StatsCategory:
+                case QuestionsEnum.StatsCategoryDateRange:
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 }

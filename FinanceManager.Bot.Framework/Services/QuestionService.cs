@@ -54,8 +54,68 @@ namespace FinanceManager.Bot.Framework.Services
                 {QuestionsEnum.ChooseCategoryToEdit, BuildCategoryToEditQuestion },
                 {QuestionsEnum.ChooseCategoryToDelete, BuildCategoryToDeleteQuestion },
                 {QuestionsEnum.CategoryType, BuildCategoryTypeQuestion },
-                {QuestionsEnum.CategorySupposedToSpentThisMonth, CategorySupposedToSpentThisMonthQuestion }
+                {QuestionsEnum.CategorySupposedToSpentThisMonth, CategorySupposedToSpentThisMonthQuestion },
+                {QuestionsEnum.StatsAction, StatsActionQuestion },
+                {QuestionsEnum.StatsCategory, StatsCategoryQuestion },
+                {QuestionsEnum.StatsCategoryDateRange, StatsCategoryDateRangeQuestion },
+                {QuestionsEnum.CategoryCurrency, CategoryCurrencyQuestion }
             };
+        }
+
+        private Task<HandlerServiceResult> CategoryCurrencyQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, select one of 3 options.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "EUR",
+                    "USD",
+                    "BYN"
+                }
+            });
+        }
+
+        private Task<HandlerServiceResult> StatsCategoryDateRangeQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, enter a date range in format dd.mm.yyyy-dd.mm.yyyy, or select All time.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "All time"
+                }
+            });
+        }
+
+        private async Task<HandlerServiceResult> StatsCategoryQuestion()
+        {
+            var categories = await _documentServiceHelper.GetUserCategories(_user.Id);
+
+            return new HandlerServiceResult
+            {
+                Message = "Please, select category.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = categories.Where(c => c.Configured).Select(c => c.Name).ToList()
+            };
+        }
+
+        private Task<HandlerServiceResult> StatsActionQuestion()
+        {
+            return Task.FromResult(new HandlerServiceResult
+            {
+                Message = "Please, select an option.",
+                StatusCode = StatusCodeEnum.NeedKeyboard,
+                Helper = new List<string>
+                {
+                    "All categories",
+                    "Income only",
+                    "Expense only",
+                    "Custom category"
+                }
+            });
         }
 
         private Task<HandlerServiceResult> CategorySupposedToSpentThisMonthQuestion()

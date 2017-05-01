@@ -20,6 +20,7 @@ namespace FinanceManager.Bot.Framework.Services
         private readonly UnhandledMessageService _unhandledMessageService;
         private readonly OperationCommandHandlerService _operationCommandHandlerService;
         private readonly StartCommandHandlerService _startCommandHandlerService;
+        private readonly StatsCommandHandlerService _statsCommandHandlerService;
         private readonly IUserDocumentService _userDocumentService;
 
         public CommandService(
@@ -29,6 +30,7 @@ namespace FinanceManager.Bot.Framework.Services
             CancelCommandHandlerService cancelCommandHandlerService,
             OperationCommandHandlerService operationCommandHandlerService,
             StartCommandHandlerService startCommandHandlerService,
+            StatsCommandHandlerService statsCommandHandlerService,
             IUserDocumentService userDocumentService)
         {
             _helpCommandHandlerService = helpCommandHandlerService;
@@ -37,6 +39,7 @@ namespace FinanceManager.Bot.Framework.Services
             _userDocumentService = userDocumentService;
             _cancelCommandHandlerService = cancelCommandHandlerService;
             _operationCommandHandlerService = operationCommandHandlerService;
+            _statsCommandHandlerService = statsCommandHandlerService;
             _startCommandHandlerService = startCommandHandlerService;
             InitializeCommandHandlerDictionary();
         }
@@ -50,7 +53,8 @@ namespace FinanceManager.Bot.Framework.Services
                 {"/start", _startCommandHandlerService.Handle},
                 {"/cancel", _cancelCommandHandlerService.Handle},
                 {"/income", _operationCommandHandlerService.Handle },
-                {"/expense", _operationCommandHandlerService.Handle }
+                {"/expense", _operationCommandHandlerService.Handle },
+                {"/stats", _statsCommandHandlerService.Handle }
             };
         }
 
@@ -71,6 +75,10 @@ namespace FinanceManager.Bot.Framework.Services
                     else if (user.Context.CurrentNode.Question.IsOperationEnum())
                     {
                         result = await _operationCommandHandlerService.HandleOperationQuestion(message.Text, user);
+                    }
+                    else if (user.Context.CurrentNode.Question.IsStatsEnum())
+                    {
+                        result = await _statsCommandHandlerService.HandleStatsQuestion(message.Text, user);
                     }
                     else
                     {
