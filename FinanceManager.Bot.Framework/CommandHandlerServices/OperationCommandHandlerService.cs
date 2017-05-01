@@ -177,9 +177,6 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             await _operationDocumentService.UpdateAsync(operation);
 
-            category.SpentInCents += sumInCents;
-            category.SpentThisMonthInCents += sumInCents;
-
             await _categoryDocumentService.UpdateAsync(category);
 
             user.Context.CurrentNode = user.Context.CurrentNode.Children.FirstOrDefault();

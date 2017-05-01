@@ -368,7 +368,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
             var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
 
-            category.SupposedToSpentThisMonthInCents = number;
+            category.SupposedToSpentThisMonthInCents = number * 100;
             category.SpentThisMonthInCents = 0;
             category.SpentInCents = 0;
             category.Configured = true;
