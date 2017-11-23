@@ -35,9 +35,6 @@ namespace FinanceManager.Bot.Server
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
-            app.UseApplicationInsightsExceptionTelemetry();
-
             app.UseMvc();
             app.UseTelegramBot("/webhook");
         }
