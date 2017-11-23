@@ -3,13 +3,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>FinanceManager.Bot.DataAccessLayer</AssemblyName>
     <PackageId>FinanceManager.Bot.DataAccessLayer</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion>2.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.2" />
   </ItemGroup>
   <ItemGroup>
