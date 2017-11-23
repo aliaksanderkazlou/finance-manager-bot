@@ -69,8 +69,8 @@ namespace FinanceManager.Bot.Server.Controllers
                     if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
                     {
                         await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
-                            response.Message);
-                           // replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
+                            response.Message,
+                            replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
                     }
                     else
                     {
