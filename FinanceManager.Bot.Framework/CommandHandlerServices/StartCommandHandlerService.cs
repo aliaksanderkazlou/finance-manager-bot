@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
+using FinanceManager.Bot.DataAccessLayer.Services.Chats;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
+using FinanceManager.Bot.DataAccessLayer.Services.UserStatuses;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Results;
 using FinanceManager.Bot.Helpers.Enums;
@@ -15,6 +18,9 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
     {
         private readonly IUserDocumentService _userDocumentService;
         private readonly ICategoryDocumentService _categoryDocumentService;
+        private readonly IChatDocumentService _chatDocumentService;
+        private readonly IUserStatusDocumentService _userStatusDocumentService;
+
         private const string HelpText = "/category - Add, edit or delete categories\n" +
                                         "/income - Add an income operation\n" +
                                         "/expense - Add an expense operation\n" +
@@ -24,10 +30,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
 
         public StartCommandHandlerService(
             IUserDocumentService userDocumentService,
-            ICategoryDocumentService categoryDocumentService)
+            ICategoryDocumentService categoryDocumentService,
+            IChatDocumentService chatDocumentService,
+            IUserStatusDocumentService userStatusDocumentService)
         {
             _userDocumentService = userDocumentService;
             _categoryDocumentService = categoryDocumentService;
+            _chatDocumentService = chatDocumentService;
+            _userStatusDocumentService = userStatusDocumentService;
         }
 
         public async Task<List<HandlerServiceResult>> Handle(Message message)
@@ -42,6 +52,14 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     ChatId = message.UserInfo.ChatId,
                     FirstName = message.UserInfo.FirstName,
                     LastName = message.UserInfo.LastName
+                };
+
+                var chat = new Chat
+                {
+                    Id = _chatDocumentService.GenerateNewId(),
+                    TelegramCharId = message.ChatInfo.Id,
+                    Type = message.ChatInfo.Type,
+                    UserName = message.ChatInfo.UserName
                 };
 
                 var defaultIncomeCategory = new Category
@@ -70,6 +88,17 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     Currency = "BYN"
                 };
 
+                var userStatus = new UserStatus
+                {
+                    Id = _userStatusDocumentService.GenerateNewId(),
+                    IsActiveLastThirtyDays = true,
+                    UpdatedAt = DateTime.UtcNow,
+                    UserId = user.Id
+                };
+
+
+                await _userStatusDocumentService.InsertAsync(userStatus);
+                await _chatDocumentService.InsertAsync(chat);
                 await _userDocumentService.InsertAsync(user);
                 await _categoryDocumentService.InsertAsync(defaultExpenseCategory);
                 await _categoryDocumentService.InsertAsync(defaultIncomeCategory);

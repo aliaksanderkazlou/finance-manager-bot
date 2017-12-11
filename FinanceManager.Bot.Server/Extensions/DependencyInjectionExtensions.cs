@@ -1,8 +1,11 @@
 ﻿using FinanceManager.Bot.DataAccessLayer;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
+using FinanceManager.Bot.DataAccessLayer.Services.Chats;
+using FinanceManager.Bot.DataAccessLayer.Services.Logs;
 using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.UnhandledMessages;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
+using FinanceManager.Bot.DataAccessLayer.Services.UserStatuses;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
 using FinanceManager.Bot.Framework.Helpers;
 using FinanceManager.Bot.Framework.Services;
@@ -41,6 +44,9 @@ namespace FinanceManager.Bot.Server.Extensions
             collection.AddTransient<ICategoryDocumentService, CategoryDocumentService>();
             collection.AddTransient<IUnhandledMessageDocumentService, UnhandledMessageDocumentService>();
             collection.AddTransient<IOperationDocumentService, OperationDocumentService>();
+            collection.AddTransient<IChatDocumentService, ChatDocumentService>();
+            collection.AddTransient<ILogDocumentService, LogDocumentService>();
+            collection.AddTransient<IUserStatusDocumentService, UserStatusDocumentService>();
 
             collection.AddTransient<MongoService>();
         }
