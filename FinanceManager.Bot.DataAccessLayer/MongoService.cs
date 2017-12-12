@@ -23,5 +23,11 @@ namespace FinanceManager.Bot.DataAccessLayer
         public IMongoCollection<Category> Categories => _database.GetCollection<Category>("categories");
 
         public IMongoCollection<Operation> Operations => _database.GetCollection<Operation>("operations");
+
+        public IMongoCollection<Chat> Chats => _database.GetCollection<Chat>("chats");
+
+        public IMongoCollection<Logs> Logs => _database.GetCollection<Logs>("logs");
+
+        public IMongoCollection<UserStatus> UserStatuses => _database.GetCollection<UserStatus>("user_statuses");
     }
 }

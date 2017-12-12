@@ -48,6 +48,12 @@ namespace FinanceManager.Bot.Server.Controllers
                         FirstName = message.From.FirstName,
                         LastName = message.From.LastName,
                         ChatId = message.Chat.Id
+                    },
+                    ChatInfo = new ChatInfo
+                    {
+                        Type = message.Chat.Type.ToString(),
+                        Id = message.Chat.Id,
+                        UserName = message.Chat.Username
                     }
                 }
                 : new Message()
@@ -58,6 +64,12 @@ namespace FinanceManager.Bot.Server.Controllers
                         FirstName = update.CallbackQuery.From.FirstName,
                         LastName = update.CallbackQuery.From.LastName,
                         ChatId = update.CallbackQuery.From.Id
+                    },
+                    ChatInfo = new ChatInfo
+                    {
+                        UserName = update.CallbackQuery.Message.Chat.Username,
+                        Id = update.CallbackQuery.Message.Chat.Id,
+                        Type = update.CallbackQuery.Message.Chat.Type.ToString()
                     }
                 };
 
@@ -69,8 +81,8 @@ namespace FinanceManager.Bot.Server.Controllers
                     if (response.StatusCode == StatusCodeEnum.NeedKeyboard)
                     {
                         await _botClient.SendTextMessageAsync(messageToProcess.UserInfo.ChatId,
-                            response.Message);
-                           // replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
+                            response.Message,
+                            replyMarkup: Helpers.ControllerHelper.BuildKeyBoardMarkup((List<string>) response.Helper));
                     }
                     else
                     {

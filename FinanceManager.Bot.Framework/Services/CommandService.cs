@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FinanceManager.Bot.DataAccessLayer.Models;
+using FinanceManager.Bot.DataAccessLayer.Services.Logs;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
+using FinanceManager.Bot.DataAccessLayer.Services.UserStatuses;
 using FinanceManager.Bot.Framework.Results;
 using FinanceManager.Bot.Framework.CommandHandlerServices;
 using FinanceManager.Bot.Helpers.Enums;
@@ -21,7 +24,9 @@ namespace FinanceManager.Bot.Framework.Services
         private readonly OperationCommandHandlerService _operationCommandHandlerService;
         private readonly StartCommandHandlerService _startCommandHandlerService;
         private readonly StatsCommandHandlerService _statsCommandHandlerService;
+        private readonly ILogDocumentService _logDocumentService;
         private readonly IUserDocumentService _userDocumentService;
+        private readonly IUserStatusDocumentService _userStatusDocumentService;
 
         public CommandService(
             HelpCommandHandlerService helpCommandHandlerService,
@@ -31,7 +36,9 @@ namespace FinanceManager.Bot.Framework.Services
             OperationCommandHandlerService operationCommandHandlerService,
             StartCommandHandlerService startCommandHandlerService,
             StatsCommandHandlerService statsCommandHandlerService,
-            IUserDocumentService userDocumentService)
+            IUserDocumentService userDocumentService,
+            ILogDocumentService logDocumentService,
+            IUserStatusDocumentService userStatusDocumentService)
         {
             _helpCommandHandlerService = helpCommandHandlerService;
             _categoryCommandHandlerService = categoryCommandHandlerService;
@@ -41,6 +48,8 @@ namespace FinanceManager.Bot.Framework.Services
             _operationCommandHandlerService = operationCommandHandlerService;
             _statsCommandHandlerService = statsCommandHandlerService;
             _startCommandHandlerService = startCommandHandlerService;
+            _logDocumentService = logDocumentService;
+            _userStatusDocumentService = userStatusDocumentService;
             InitializeCommandHandlerDictionary();
         }
 
@@ -61,10 +70,29 @@ namespace FinanceManager.Bot.Framework.Services
         public async Task<List<HandlerServiceResult>> ExecuteCommand(string command, Message message)
         {
             List<HandlerServiceResult> result;
+            var log = new Logs {Id = _logDocumentService.GenerateNewId()};
 
             try
             {
                 var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
+
+                if (user != null)
+                {
+                    log.Request = new LogRequest
+                    {
+                        ChatId = message.ChatInfo.Id,
+                        Context = user.Context,
+                        Message = message.Text,
+                        UserId = user.Id
+                    };
+
+                    var userStatus = await _userStatusDocumentService.GetByUserId(user.Id);
+
+                    userStatus.IsActiveLastThirtyDays = true;
+                    userStatus.UpdatedAt = DateTime.UtcNow;
+
+                    await _userStatusDocumentService.UpdateAsync(userStatus);
+                }
 
                 if (!command.Equals("/cancel") && user?.Context?.CurrentNode != null && user.Context.CurrentNode.Question != QuestionsEnum.None)
                 {
@@ -98,6 +126,18 @@ namespace FinanceManager.Bot.Framework.Services
             {
                 result = await _unhandledMessageService.Handle(message, exception);
             }
+
+            log.Responses = new List<LogResponse>();
+            foreach (var serviceResult in result)
+            {
+                log.Responses.Add(new LogResponse
+                {
+                    Helper = serviceResult.Helper,
+                    Message = serviceResult.Message
+                });
+            }
+
+            await _logDocumentService.InsertAsync(log);
 
             return result;
         }
