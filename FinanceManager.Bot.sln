@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.DataAcce
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.Bot.Helpers", "FinanceManager.Bot.Helpers\FinanceManager.Bot.Helpers.csproj", "{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.Bot.Framework.Test", "FinanceManager.Bot.Framework.Test\FinanceManager.Bot.Framework.Test.csproj", "{DEB9F03B-389F-4E56-A88D-DFF1CE95A744}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,15 @@ Global
 		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA34A599-6B48-4E6A-8B04-8FD09FF9E844}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEB9F03B-389F-4E56-A88D-DFF1CE95A744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEB9F03B-389F-4E56-A88D-DFF1CE95A744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEB9F03B-389F-4E56-A88D-DFF1CE95A744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEB9F03B-389F-4E56-A88D-DFF1CE95A744}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E94D8F5-1822-48F9-83D2-4E79647826DB}
 	EndGlobalSection
 EndGlobal

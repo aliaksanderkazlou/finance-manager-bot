@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FinanceManager.Bot.DataAccessLayer.Models;
 using FinanceManager.Bot.DataAccessLayer.Services.Categories;
 using FinanceManager.Bot.DataAccessLayer.Services.Operations;
 using FinanceManager.Bot.DataAccessLayer.Services.Users;
@@ -30,7 +31,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
         {
             var user = await _userDocumentService.GetByChatId(message.UserInfo.ChatId);
 
-            if (user.Context.CategoryId != null)
+            if (user.Context?.CategoryId != null)
             {
                 var category = await _categoryDocumentService.GetByIdAsync(user.Context.CategoryId);
 
@@ -39,7 +40,7 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                     await _categoryDocumentService.DeleteAsync(user.Context.CategoryId);
                 }
             }
-            if (user.Context.OperationId != null)
+            if (user.Context?.OperationId != null)
             {
                 var operation = await _operationDocumentService.GetByIdAsync(user.Context.OperationId);
 
@@ -47,6 +48,11 @@ namespace FinanceManager.Bot.Framework.CommandHandlerServices
                 {
                     await _operationDocumentService.DeleteAsync(user.Context.OperationId);
                 }
+            }
+
+            if (user.Context == null)
+            {
+                user.Context = new Context();
             }
 
             user.Context.CurrentNode = null;
