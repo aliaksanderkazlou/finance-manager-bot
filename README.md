@@ -1,2 +1,2 @@
-# looks-like-gauno-bot
+# looks-like-pedar-gauno-bot
 для педаров
