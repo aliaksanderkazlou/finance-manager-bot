@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FinanceManager.Bot.Framework.Enums;
 using FinanceManager.Bot.Framework.Services;
 using FinanceManager.Bot.Helpers.Models;
+using FinanceManager.Bot.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -40,39 +41,9 @@ namespace FinanceManager.Bot.Server.Controllers
             }
 
             var messageToProcess = message != null
-                ? new Message()
-                {
-                    Text = message.Text,
-                    UserInfo = new UserInfo
-                    {
-                        FirstName = message.From.FirstName,
-                        LastName = message.From.LastName,
-                        ChatId = message.Chat.Id
-                    },
-                    ChatInfo = new ChatInfo
-                    {
-                        Type = message.Chat.Type.ToString(),
-                        Id = message.Chat.Id,
-                        UserName = message.Chat.Username
-                    }
-                }
-                : new Message()
-                {
-                    Text = update.CallbackQuery.Data,
-                    UserInfo = new UserInfo()
-                    {
-                        FirstName = update.CallbackQuery.From.FirstName,
-                        LastName = update.CallbackQuery.From.LastName,
-                        ChatId = update.CallbackQuery.From.Id
-                    },
-                    ChatInfo = new ChatInfo
-                    {
-                        UserName = update.CallbackQuery.Message.Chat.Username,
-                        Id = update.CallbackQuery.Message.Chat.Id,
-                        Type = update.CallbackQuery.Message.Chat.Type.ToString()
-                    }
-                };
-
+                ? ControllerHelper.GetMessageFromMessageStructure(message)
+                : ControllerHelper.GetMessageFromUpdateStructure(update);
+               
             var responseList =
                 await _commandService.ExecuteCommand(messageToProcess.Text.Split(' ')[0], messageToProcess);
 

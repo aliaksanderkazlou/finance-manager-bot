@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FinanceManager.Bot.Helpers.Models;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using Message = Telegram.Bot.Types.Message;
 
 namespace FinanceManager.Bot.Server.Helpers
 {
@@ -30,6 +32,46 @@ namespace FinanceManager.Bot.Server.Helpers
             var replyKeyBoard = new InlineKeyboardMarkup(keyboard);
 
             return replyKeyBoard;
+        }
+
+        public static Bot.Helpers.Models.Message GetMessageFromMessageStructure(Message message)
+        {
+            return new Bot.Helpers.Models.Message()
+            {
+                Text = message.Text,
+                UserInfo = new UserInfo
+                {
+                    FirstName = message.From.FirstName,
+                    LastName = message.From.LastName,
+                    ChatId = message.Chat.Id
+                },
+                ChatInfo = new ChatInfo
+                {
+                    Type = message.Chat.Type.ToString(),
+                    Id = message.Chat.Id,
+                    UserName = message.Chat.Username
+                }
+            };
+        }
+
+        public static Bot.Helpers.Models.Message GetMessageFromUpdateStructure(Update update)
+        {
+            return new Bot.Helpers.Models.Message()
+            {
+                Text = update.CallbackQuery.Data,
+                UserInfo = new UserInfo()
+                {
+                    FirstName = update.CallbackQuery.From.FirstName,
+                    LastName = update.CallbackQuery.From.LastName,
+                    ChatId = update.CallbackQuery.From.Id
+                },
+                ChatInfo = new ChatInfo
+                {
+                    UserName = update.CallbackQuery.Message.Chat.Username,
+                    Id = update.CallbackQuery.Message.Chat.Id,
+                    Type = update.CallbackQuery.Message.Chat.Type.ToString()
+                }
+            };
         }
     }
 }

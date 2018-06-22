@@ -1,16 +1,13 @@
-version: '3'
-
+version: '2'
 services:
-  splunkenterprise:
-    hostname: splunkenterprise
-    image: splunk/splunk:6.6.3
-    environment:
-      SPLUNK_START_ARGS: --accept-license --answer-yes
-      SPLUNK_ENABLE_LISTEN: 9997
-      SPLUNK_ADD: tcp 1514
-
-    ports:
-      - "8000:8000"
-      - "9997:9997"
-      - "8088:8088"
-      - "1514:1514"
+    mongodb:
+        image: mongo:latest
+        container_name: "mongodb"
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+          - ./data/db:/data/db
+        ports:
+            - 27017:27017
+        command: mongod --smallfiles --logpath=/dev/null # --quiet
